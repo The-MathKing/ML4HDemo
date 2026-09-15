@@ -1,0 +1,39 @@
+{
+  "discriminator_gate": {
+    "discriminator_auc": 0.9975558166862514,
+    "is_realistic": false,
+    "is_optimal": false,
+    "n_pseudo": 1000,
+    "n_real": 500,
+    "status": "FAIL (Simulator Discrepancy)"
+  },
+  "weight_diagnostics": {
+    "ess": 314.5422537396259,
+    "ess_fraction": 0.3145422537396259,
+    "max_weight": 0.590177896618843,
+    "clip_threshold": 0.590177896618843
+  },
+  "in_distribution": {
+    "spotguard_coverage": 0.924,
+    "spotguard_ci": [
+      0.902,
+      0.946
+    ],
+    "bayesian_joint_coverage": 0.01,
+    "bayesian_mean_marginal": 0.3172,
+    "q_alpha": 0.24495928794780888
+  },
+  "shifted": {
+    "spotguard_weighted_coverage": 0.898,
+    "spotguard_ci": [
+      0.874,
+      0.924
+    ],
+    "spotguard_unweighted_coverage": 0.898,
+    "bayesian_joint_coverage": 0.02,
+    "bayesian_mean_marginal": 0.3336,
+    "q_alpha_weighted": 0.245211856609958,
+    "q_alpha_unweighted": 0.24495928794780888,
+    "aurc": 0.13808857470064717
+  }
+}
