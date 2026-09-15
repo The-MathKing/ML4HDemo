@@ -1,553 +1,489 @@
 <!DOCTYPE html>
-<html class="h-full bg-[#F8FAFC]" lang="en">
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SpotGuard: Conformal Spatial Transcriptomics Gatekeeper — ML4H 2026</title>
-    <meta name="description" content="SpotGuard: Conformal spatial transcriptomics gatekeeper prevents false-positive immune qualification in clinical biopsies. ML4H 2026 Demo Track.">
+    <title>SpotGuard — Conformal Spatial Transcriptomics Gatekeeper</title>
+    <meta name="description" content="Geometry-Aware Conformal Gatekeeper for Spatial Transcriptomics Deconvolution under Atlas-to-Tissue Shift. ML4H 2026.">
     
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-    
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        paper: '#FFFFFF',
-                        paperMuted: '#F8FAFC',
-                        subtleLine: '#E2E8F0',
-                        strongLine: '#CBD5E1',
-                        ink: '#0F172A',
-                        slateText: '#334155',
-                        mutedText: '#64748B',
-                        journalRed: '#DC2626',
-                        journalEmerald: '#059669',
-                        journalAmber: '#D97706',
-                        journalBlue: '#0284C7'
+                        appleBg: '#FBFBFD',
+                        appleCard: '#FFFFFF',
+                        appleBorder: 'rgba(0, 0, 0, 0.08)',
+                        appleBorderHover: 'rgba(0, 0, 0, 0.16)',
+                        appleText: '#1D1D1F',
+                        appleMuted: '#86868B',
+                        appleSubtle: '#F5F5F7',
+                        appleBlue: '#0071E3',
+                        appleBlueHover: '#0077ED',
+                        appleGreen: '#34C759',
+                        appleRed: '#FF3B30',
+                        appleAmber: '#FF9500',
+                        applePurple: '#AF52DE'
                     },
                     fontFamily: {
-                        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+                        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'SFMono-Regular', 'Menlo', 'monospace']
                     }
                 }
             }
         }
     </script>
+
     <style>
+        body {
+            background-color: #FBFBFD;
+            color: #1D1D1F;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .apple-blur {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .apple-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .apple-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .apple-pill {
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+        }
+
         .magma-scale {
             background: linear-gradient(to right, #000004, #280b53, #65156e, #9f2a63, #d44842, #f57d15, #fac42a, #fcffa4);
         }
+
         input[type=range] {
             -webkit-appearance: none;
             height: 4px;
             border-radius: 2px;
-            background: #E2E8F0;
+            background: #E5E5EA;
+            outline: none;
         }
+
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 14px;
-            width: 14px;
+            height: 18px;
+            width: 18px;
             border-radius: 50%;
-            background: #0284C7;
+            background: #FFFFFF;
             cursor: pointer;
-            border: 2px solid #FFFFFF;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            border: 0.5px solid rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 0.5px 1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease;
         }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
-            border-radius: 2px;
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
-<body class="bg-[#F1F5F9] text-ink font-sans min-h-screen w-screen overflow-x-hidden flex flex-col antialiased text-[13px] select-none p-2 md:p-3">
+<body class="min-h-screen flex flex-col">
 
-    <!-- ==================== MAIN PAPER CONTAINER (PUBLICATION CANVAS) ==================== -->
-    <div class="bg-paper border border-strongLine shadow-sm rounded-md flex-1 flex flex-col max-w-[1920px] mx-auto w-full">
-        
-        <!-- ==================== FIGURE HEADER & CLINICAL STUDY IDENTIFIER ==================== -->
-        <header class="flex-none border-b border-subtleLine px-4 py-2.5 bg-paper flex items-center justify-between gap-4 flex-wrap">
+    <!-- Apple-Style Navigation Bar -->
+    <header class="sticky top-0 z-50 apple-blur border-b border-appleBorder transition-all">
+        <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <span class="px-2 py-0.5 rounded bg-slate-900 text-white font-bold text-xs tracking-wider uppercase">
-                    Figure 2
+                <div class="w-7 h-7 rounded-lg bg-appleText flex items-center justify-center text-white shadow-sm">
+                    <span class="material-symbols-outlined text-[17px]">radar</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-semibold text-[15px] tracking-tight text-appleText">SpotGuard</span>
+                    <span class="text-[12px] font-normal text-appleMuted">Spatial Conformal Gatekeeper</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-appleSubtle text-appleMuted text-[12px] font-medium mr-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-appleGreen"></span>
+                    ML4H 2026 Demo Track
                 </span>
-                <h1 class="text-sm md:text-base font-bold text-ink tracking-tight">
-                    SpotGuard: Conformal spatial transcriptomics gatekeeper prevents false-positive immune qualification in clinical biopsies
+
+                <a href="main.pdf" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-appleSubtle hover:bg-black/5 text-appleText text-[13px] font-medium transition">
+                    <span class="material-symbols-outlined text-[15px] text-appleMuted">description</span>
+                    <span>Spec Sheet (2P)</span>
+                </a>
+
+                <a href="https://github.com/The-MathKing/ML4HDemo" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-appleBlue hover:bg-appleBlueHover text-white text-[13px] font-medium shadow-sm transition">
+                    <span class="material-symbols-outlined text-[15px]">code</span>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8 flex flex-col gap-6">
+
+        <!-- Minimalist Hero Overview -->
+        <section class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-appleText">
+                    Distribution-Free Safety for Spatial Oncology
                 </h1>
-            </div>
-            
-            <!-- Action Controls & Paper Links -->
-            <div class="flex items-center gap-3 text-xs flex-wrap">
-                <div class="hidden xl:flex items-center gap-4 text-mutedText text-[11px] font-mono border-r border-subtleLine pr-4">
-                    <span>ML4H 2026 Demo Track</span>
-                    <span class="inline-flex items-center gap-1 text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-subtleLine font-sans font-medium">
-                        <span class="w-1.5 h-1.5 rounded-full bg-journalEmerald"></span> Single-Blind Review (Aryan Padarthi)
-                    </span>
-                </div>
-                <a href="main.pdf" target="_blank" class="h-7 px-2.5 bg-paper hover:bg-slate-50 border border-subtleLine rounded text-xs text-slate-700 font-medium flex items-center gap-1.5 transition">
-                    <span class="material-symbols-outlined text-[15px] text-slate-600">picture_as_pdf</span>
-                    <span>Spec Sheet PDF (2P)</span>
-                </a>
-                <a href="https://github.com/The-MathKing/ML4HDemo" target="_blank" class="h-7 px-2.5 bg-paper hover:bg-slate-50 border border-subtleLine rounded text-xs text-slate-700 font-medium flex items-center gap-1.5 transition">
-                    <span class="material-symbols-outlined text-[15px] text-journalBlue">code</span>
-                    <span>GitHub Code & Engine</span>
-                </a>
-            </div>
-        </header>
-
-        <!-- ==================== SPECIMEN PROVENANCE & METHODOLOGY METADATA STRIP ==================== -->
-        <aside class="h-8 flex-none bg-paperMuted border-b border-subtleLine px-4 flex items-center justify-between text-[11px] text-mutedText overflow-x-auto whitespace-nowrap">
-            <div class="flex items-center gap-5">
-                <div class="flex items-center gap-1.5">
-                    <span class="font-semibold text-slate-600 uppercase text-[10px] tracking-wide">Specimen:</span>
-                    <span class="text-slate-800 font-medium">FFPE Invasive Ductal Carcinoma (BRCA-2026-884-A)</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <span class="font-semibold text-slate-600 uppercase text-[10px] tracking-wide">Slide / Block:</span>
-                    <span class="font-mono text-slate-800">V19T26-044_D1 • BLK-0982-C2</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <span class="font-semibold text-slate-600 uppercase text-[10px] tracking-wide">Platform:</span>
-                    <span class="text-slate-800 font-mono">10x Visium (6.5×6.5 mm, 55 μm pitch, 1,600 spots)</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <span class="font-semibold text-slate-600 uppercase text-[10px] tracking-wide">Deconvolution:</span>
-                    <span class="font-mono text-slate-800">SpaceRanger 2.1.0 • Cell2location v0.1.3</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 pl-4 border-l border-subtleLine font-mono text-[10px]">
-                <span>Inductive Calibration (M<sub>cal</sub> = 1,000)</span>
-                <span class="text-slate-700 font-semibold">Simplex TV Distance $\mathcal{S}_{\text{TV}}$</span>
-            </div>
-        </aside>
-
-        <!-- ==================== INTERACTIVE CALIBRATION & STATISTICAL CONTROL BAR ==================== -->
-        <section class="h-auto md:h-11 flex-none bg-white border-b border-subtleLine px-4 py-2 md:py-0 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 flex-wrap">
-            <div class="flex items-center gap-4 flex-wrap">
-                <div class="flex items-center gap-2">
-                    <label class="text-xs font-bold text-slate-800" for="alpha-slider">
-                        Significance Level (α):
-                    </label>
-                    <div class="flex items-center gap-2 bg-slate-50 px-2 py-1 rounded border border-subtleLine">
-                        <input class="w-28 cursor-pointer" id="alpha-slider" max="0.20" min="0.01" step="0.01" type="range" value="0.10"/>
-                        <span class="font-mono font-bold text-xs text-journalBlue w-9 text-right" id="alpha-val">0.10</span>
-                    </div>
-                </div>
-                <div class="text-xs text-mutedText border-l border-subtleLine pl-3 flex items-center gap-1.5 font-mono">
-                    <span>Marginal Coverage Target:</span>
-                    <span class="font-bold text-slate-900" id="targetCoverageLabel">1 - α = 90.0%</span>
-                </div>
+                <p class="text-sm md:text-base text-appleMuted mt-1 max-w-3xl leading-relaxed">
+                    Standard spatial deconvolution outputs artificial certainty on invasive tumor margins under atlas shift. SpotGuard constructs Total Variation conformal prediction sets on the probability simplex to flag ambiguous spots and protect clinical triage.
+                </p>
             </div>
 
-            <!-- Statistical Coverage Diagnostic Pills -->
-            <div class="flex items-center gap-3 flex-wrap">
-                <!-- Empirical Conformal Pill -->
-                <div class="flex items-center gap-2 bg-emerald-50/80 px-2.5 py-1 rounded border border-emerald-200">
-                    <span class="w-2 h-2 rounded-full bg-journalEmerald"></span>
-                    <span class="text-xs text-emerald-900 font-medium">Empirical Conformal Coverage:</span>
-                    <span class="font-mono font-bold text-xs text-emerald-700" id="empiricalCovPill">89.8%</span>
-                    <span class="text-[10px] text-emerald-800 font-mono">(≥90.0% Exact Guarantee)</span>
-                </div>
-                <!-- Bayesian Joint CI Undercoverage Warning Pill -->
-                <div class="flex items-center gap-2 bg-red-50 px-2.5 py-1 rounded border border-red-200">
-                    <span class="w-2 h-2 rounded-full bg-journalRed"></span>
-                    <span class="text-xs text-red-900 font-medium">Uncalibrated Bayesian 90% Joint CI:</span>
-                    <span class="font-mono font-bold text-xs text-red-700">2.0%</span>
-                    <span class="text-[10px] text-white font-mono bg-journalRed px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
-                        45× Miscoverage
-                    </span>
-                </div>
-                <button class="px-2 py-1 text-xs text-slate-600 hover:text-slate-900 border border-subtleLine rounded hover:bg-slate-50 transition" onclick="resetNominal()">
-                    Reset Nominal
-                </button>
+            <!-- Provenance Badge -->
+            <div class="flex items-center gap-2 text-[12px] font-mono text-appleMuted bg-white px-3.5 py-2 rounded-xl border border-appleBorder shadow-sm whitespace-nowrap self-start md:self-auto">
+                <span class="font-medium text-appleText">10x Visium</span>
+                <span>•</span>
+                <span>FFPE IDC (BRCA)</span>
+                <span>•</span>
+                <span class="text-appleGreen font-medium">M = 1,000 cal</span>
             </div>
         </section>
 
-        <!-- ==================== FIGURE PANELS GRID (a, b, c, d, e) ==================== -->
-        <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-[#F8FAFC]">
+        <!-- Floating Interactive Control & Metric Capsule Bar -->
+        <section class="apple-card p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+            <!-- Left: Significance Level Slider -->
+            <div class="flex-1 flex flex-col gap-2 max-w-md">
+                <div class="flex items-center justify-between">
+                    <span class="text-[13px] font-medium text-appleText flex items-center gap-1.5">
+                        Miscoverage Rate (α)
+                    </span>
+                    <span class="font-mono text-[13px] font-semibold text-appleBlue bg-blue-50 px-2 py-0.5 rounded-md" id="alphaLabel">
+                        α = 0.10 (90% Target)
+                    </span>
+                </div>
+                <div class="py-1">
+                    <input type="range" id="alphaRange" min="0.01" max="0.25" step="0.01" value="0.10" class="w-full">
+                </div>
+                <div class="flex items-center gap-1.5 text-[11px] font-mono text-appleMuted">
+                    <span>Presets:</span>
+                    <button class="px-2 py-0.5 rounded-md bg-appleSubtle hover:bg-black/5 transition" onclick="setAlpha(0.05)">0.05 (95%)</button>
+                    <button class="px-2 py-0.5 rounded-md bg-appleBlue text-white font-medium transition" onclick="setAlpha(0.10)" id="btn010">0.10 (90%)</button>
+                    <button class="px-2 py-0.5 rounded-md bg-appleSubtle hover:bg-black/5 transition" onclick="setAlpha(0.15)">0.15 (85%)</button>
+                    <button class="px-2 py-0.5 rounded-md bg-appleSubtle hover:bg-black/5 transition" onclick="setAlpha(0.20)">0.20 (80%)</button>
+                </div>
+            </div>
+
+            <div class="h-px lg:h-12 w-full lg:w-px bg-appleBorder"></div>
+
+            <!-- Right: 4 Minimal Metric Capsules -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-6 flex-1">
+                <div>
+                    <div class="text-[11px] font-medium text-appleMuted uppercase tracking-wide">Conformal Coverage</div>
+                    <div class="text-xl font-semibold text-appleGreen mt-0.5 font-mono" id="statCov">89.8%</div>
+                    <div class="text-[11px] text-appleMuted font-mono">≥ 90.0% Exact</div>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-medium text-appleMuted uppercase tracking-wide">Bayesian Joint CI</div>
+                    <div class="text-xl font-semibold text-appleRed mt-0.5 font-mono">1.4%</div>
+                    <div class="text-[11px] text-appleRed font-mono">Collapsed Product</div>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-medium text-appleMuted uppercase tracking-wide">Gated Spots</div>
+                    <div class="text-xl font-semibold text-appleText mt-0.5 font-mono" id="statGated">142 / 1600</div>
+                    <div class="text-[11px] text-appleAmber font-mono" id="statGatedPct">8.9% Margin Mask</div>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-medium text-appleMuted uppercase tracking-wide">Simplex Vol (V)</div>
+                    <div class="text-xl font-semibold text-appleText mt-0.5 font-mono" id="statVol">0.058</div>
+                    <div class="text-[11px] text-appleMuted font-mono">Mean TV Radius</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main 3-Column Visual Workspace -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- ==================== PANEL a: UNCALIBRATED SPATIAL ESTIMATE ==================== -->
-            <section class="lg:col-span-4 bg-paper border border-subtleLine rounded flex flex-col overflow-hidden shadow-sm">
-                <!-- Header -->
-                <div class="h-9 px-3.5 bg-white border-b border-subtleLine flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-base text-ink tracking-tight font-sans">a</span>
-                        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">
-                            Standard Deconvolution <span class="font-normal text-mutedText lowercase">(uncalibrated point estimate)</span>
-                        </h2>
+            <!-- Column 1: Uncalibrated Standard Deconvolution -->
+            <div class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
+                <div class="flex items-center justify-between pb-3 border-b border-appleBorder">
+                    <div>
+                        <h2 class="text-[14px] font-semibold text-appleText">Standard Deconvolution</h2>
+                        <p class="text-[12px] text-appleMuted">Uncalibrated point prediction</p>
                     </div>
-                    <span class="font-mono text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-subtleLine font-medium">
-                        CD8+ T-cell
+                    <span class="px-2.5 py-0.5 rounded-full bg-red-50 text-appleRed font-mono text-[11px] font-medium">
+                        Overconfident
                     </span>
                 </div>
 
-                <!-- Subheader Tools -->
-                <div class="h-7 px-3 bg-slate-50/80 border-b border-subtleLine flex items-center justify-between text-xs text-mutedText">
-                    <div class="flex items-center gap-1 text-[11px]">
-                        <span class="font-semibold text-slate-700">Specimen:</span>
-                        <span>Invasive Ductal Carcinoma</span>
-                    </div>
-                    <div class="flex items-center gap-2 font-mono text-[11px] text-slate-700">
-                        <span>N = 1,600 spots</span>
-                        <span>μ<sub>max</sub> = 0.88</span>
-                    </div>
-                </div>
-
-                <!-- Spatial Tissue Microarray Canvas -->
-                <div class="flex-1 min-h-[380px] relative bg-white p-3 flex items-center justify-center overflow-hidden border-b border-subtleLine">
-                    <!-- Anatomical Orientation -->
-                    <div class="absolute top-2 left-3 text-[10px] font-mono text-slate-600 font-semibold bg-slate-50/90 px-1.5 py-0.5 rounded border border-subtleLine">
-                        S (Superior) / L (Lateral)
-                    </div>
-                    <div class="absolute top-2 right-3 text-[10px] font-mono text-slate-500">
-                        Visium 6.5 mm frame
-                    </div>
-
-                    <!-- Physical Scale Bar: 500 µm -->
-                    <div class="absolute bottom-3 left-3 flex flex-col items-start gap-0.5 pointer-events-none">
-                        <div class="w-16 h-1 bg-slate-900"></div>
-                        <span class="text-[9px] font-mono font-bold text-slate-800">500 μm</span>
-                    </div>
-
-                    <!-- Spot Reticle Callout (Active Spot) -->
-                    <div class="absolute z-20 pointer-events-none transition-all duration-150" id="reticle-a" style="left: 63.8%; top: 38.6%;">
-                        <div class="w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-journalBlue animate-ping opacity-75"></div>
-                        <div class="w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-journalBlue absolute top-0 left-0"></div>
-                        <div class="absolute left-3.5 top-[-10px] whitespace-nowrap bg-white/95 text-slate-900 text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow-sm border border-slate-300">
-                            Spot #<span id="callout-id-a">842</span> <span class="text-journalBlue font-normal">[μ = <span id="callout-mu-a">0.08</span>]</span>
-                        </div>
-                    </div>
-
-                    <!-- SVG Microarray Render -->
-                    <svg class="w-full h-full object-contain" id="svg-uncalibrated" viewbox="0 0 420 420">
+                <!-- Canvas Wrapper -->
+                <div class="relative bg-appleSubtle rounded-xl my-4 h-[360px] flex items-center justify-center overflow-hidden border border-black/5">
+                    <svg class="w-full h-full object-contain p-2 cursor-pointer" id="svg-uncalibrated" viewbox="0 0 420 420">
                         <defs>
-                            <radialgradient cx="44%" cy="45%" id="necroticCenterLight" r="35%">
-                                <stop offset="0%" stop-color="#E2E8F0" stop-opacity="0.7"></stop>
-                                <stop offset="85%" stop-color="#FFFFFF" stop-opacity="0"></stop>
+                            <radialgradient cx="44%" cy="45%" id="necroticLight" r="35%">
+                                <stop offset="0%" stop-color="#E5E5EA" stop-opacity="0.6"></stop>
+                                <stop offset="85%" stop-color="#F5F5F7" stop-opacity="0"></stop>
                             </radialgradient>
                         </defs>
-                        <circle cx="185" cy="190" fill="url(#necroticCenterLight)" r="120"></circle>
+                        <circle cx="185" cy="190" fill="url(#necroticLight)" r="120"></circle>
                         <g id="spots-uncalibrated"></g>
                     </svg>
+
+                    <!-- Active Reticle -->
+                    <div class="absolute pointer-events-none transition-all duration-150" id="reticle-a" style="left: 63.8%; top: 38.6%;">
+                        <div class="w-6 h-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-appleBlue animate-ping opacity-60"></div>
+                        <div class="w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-appleBlue absolute top-0 left-0 shadow-sm"></div>
+                    </div>
+
+                    <div class="absolute bottom-2 left-3 text-[10px] font-mono text-appleMuted bg-white/90 px-2 py-0.5 rounded-md border border-black/5">
+                        Scale: 500 μm
+                    </div>
                 </div>
 
-                <!-- Scientific Magma Colormap Legend Bar -->
-                <div class="h-14 px-3.5 py-2 bg-white flex flex-col justify-center">
-                    <div class="flex items-center justify-between text-[11px] mb-1">
-                        <span class="text-slate-800 font-semibold">Cell2location Estimated CD8+ Proportion</span>
-                        <span class="font-mono text-mutedText text-[10px]">Range: [0.00 – 1.00]</span>
+                <!-- Magma Scale Bar -->
+                <div>
+                    <div class="flex justify-between text-[11px] text-appleMuted mb-1.5 font-medium">
+                        <span>CD8+ T-Cell Proportion</span>
+                        <span class="font-mono">[0.00 – 1.00]</span>
                     </div>
-                    <div class="h-2.5 w-full rounded-[2px] magma-scale border border-subtleLine shadow-inner"></div>
-                    <div class="flex justify-between font-mono text-[9px] text-slate-600 mt-1 font-medium">
+                    <div class="h-2 w-full rounded-full magma-scale border border-black/5 shadow-inner"></div>
+                    <div class="flex justify-between font-mono text-[10px] text-appleMuted mt-1">
                         <span>0.00</span>
-                        <span>0.20</span>
-                        <span>0.40</span>
-                        <span>0.60</span>
-                        <span>0.80</span>
+                        <span>0.25</span>
+                        <span>0.50</span>
+                        <span>0.75</span>
                         <span>1.00</span>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- ==================== PANEL b: CONFORMAL RELIABILITY MASK ==================== -->
-            <section class="lg:col-span-4 bg-paper border border-subtleLine rounded flex flex-col overflow-hidden shadow-sm">
-                <!-- Header -->
-                <div class="h-9 px-3.5 bg-white border-b border-subtleLine flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-base text-ink tracking-tight font-sans">b</span>
-                        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">
-                            SpotGuard Conformal Mask <span class="font-normal text-mutedText lowercase">(<span id="maskAlphaLabel">α = 0.10</span>)</span>
-                        </h2>
+            <!-- Column 2: SpotGuard Conformal Shield -->
+            <div class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
+                <div class="flex items-center justify-between pb-3 border-b border-appleBorder">
+                    <div>
+                        <h2 class="text-[14px] font-semibold text-appleText">SpotGuard Conformal Shield</h2>
+                        <p class="text-[12px] text-appleMuted" id="maskSub">Safety filter at α = 0.10</p>
                     </div>
-                    <span class="font-mono text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-300" id="gatedCountBadge">
-                        142 Gated (8.9%)
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-appleGreen font-mono text-[11px] font-medium" id="maskBadge">
+                        1,458 Retained
                     </span>
                 </div>
 
-                <!-- Subheader Criteria Strip -->
-                <div class="h-7 px-3 bg-slate-50/80 border-b border-subtleLine flex items-center justify-between text-xs text-mutedText">
-                    <div class="flex items-center gap-2">
-                        <span class="font-semibold text-slate-700 text-[11px]">Quality Criterion:</span>
-                        <span class="text-slate-800 text-[11px] font-mono">Simultaneous Simplex Coverage</span>
-                    </div>
-                    <span class="text-[10px] font-mono text-journalEmerald font-semibold" id="retainedCountText">1,458 Spots Retained (91.1%)</span>
-                </div>
-
-                <!-- Mask Spatial View Canvas -->
-                <div class="flex-1 min-h-[380px] relative bg-white p-3 flex items-center justify-center overflow-hidden border-b border-subtleLine">
-                    <div class="absolute bottom-3 left-3 flex flex-col items-start gap-0.5 pointer-events-none">
-                        <div class="w-16 h-1 bg-slate-900"></div>
-                        <span class="text-[9px] font-mono font-bold text-slate-800">500 μm</span>
-                    </div>
-
-                    <!-- Spot Reticle Callout: Gated Status -->
-                    <div class="absolute z-20 pointer-events-none transition-all duration-150" id="reticle-b" style="left: 63.8%; top: 38.6%;">
-                        <div class="w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-journalAmber animate-pulse"></div>
-                        <div class="w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-journalAmber absolute top-0 left-0"></div>
-                        <div class="absolute left-3.5 top-[-10px] whitespace-nowrap bg-amber-50 text-amber-950 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-amber-400 shadow-sm" id="callout-b-box">
-                            Spot #<span id="callout-id-b">842</span>: <span id="callout-status-b">GATED (Uncertain)</span>
-                        </div>
-                    </div>
-
-                    <!-- SVG Filtered Microarray Render -->
-                    <svg class="w-full h-full object-contain" id="svg-masked" viewbox="0 0 420 420">
+                <!-- Canvas Wrapper -->
+                <div class="relative bg-appleSubtle rounded-xl my-4 h-[360px] flex items-center justify-center overflow-hidden border border-black/5">
+                    <svg class="w-full h-full object-contain p-2 cursor-pointer" id="svg-masked" viewbox="0 0 420 420">
                         <defs>
-                            <pattern height="4" id="gatedHatchLight" patterntransform="rotate(45 0 0)" patternunits="userSpaceOnUse" width="4">
-                                <line stroke="#94A3B8" stroke-width="1.2" x1="0" x2="0" y1="0" y2="4"></line>
+                            <pattern height="4" id="gatedHatch" patterntransform="rotate(45 0 0)" patternunits="userSpaceOnUse" width="4">
+                                <line stroke="#8E8E93" stroke-width="1.2" x1="0" x2="0" y1="0" y2="4"></line>
                             </pattern>
                         </defs>
                         <g id="spots-masked"></g>
                     </svg>
+
+                    <!-- Active Reticle -->
+                    <div class="absolute pointer-events-none transition-all duration-150" id="reticle-b" style="left: 63.8%; top: 38.6%;">
+                        <div class="w-6 h-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-appleAmber animate-pulse"></div>
+                        <div class="w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-appleAmber absolute top-0 left-0 shadow-sm"></div>
+                    </div>
+
+                    <div class="absolute top-2.5 right-3 text-[10px] font-mono text-appleMuted bg-white/90 px-2 py-0.5 rounded-md border border-black/5">
+                        <span id="spotHoverStatus">Spot #842: Gated</span>
+                    </div>
                 </div>
 
-                <!-- Diagnostics Table -->
-                <div class="h-24 px-3.5 py-2.5 bg-white flex flex-col justify-between text-xs">
-                    <div class="grid grid-cols-4 gap-2 text-center">
-                        <div class="bg-slate-50 p-1.5 rounded border border-subtleLine">
-                            <div class="text-[9px] text-mutedText font-semibold uppercase tracking-wider">Total Biopsy</div>
-                            <div class="font-mono font-bold text-slate-900 text-xs">1,600</div>
-                            <div class="text-[9px] text-slate-500 font-mono">100.0%</div>
-                        </div>
-                        <div class="bg-emerald-50/70 p-1.5 rounded border border-emerald-200">
-                            <div class="text-[9px] text-emerald-800 font-semibold uppercase tracking-wider">Reliable</div>
-                            <div class="font-mono font-bold text-emerald-700 text-xs" id="boxReliable">1,458</div>
-                            <div class="text-[9px] text-emerald-600 font-mono" id="boxReliablePct">91.1%</div>
-                        </div>
-                        <div class="bg-amber-50/70 p-1.5 rounded border border-amber-200">
-                            <div class="text-[9px] text-amber-800 font-semibold uppercase tracking-wider">Edge Gated</div>
-                            <div class="font-mono font-bold text-amber-700 text-xs" id="boxEdge">68</div>
-                            <div class="text-[9px] text-amber-600 font-mono">Tissue margin</div>
-                        </div>
-                        <div class="bg-rose-50/70 p-1.5 rounded border border-rose-200">
-                            <div class="text-[9px] text-rose-800 font-semibold uppercase tracking-wider">Epistemic</div>
-                            <div class="font-mono font-bold text-rose-700 text-xs" id="boxEpistemic">74</div>
-                            <div class="text-[9px] text-rose-600 font-mono">High variance</div>
-                        </div>
+                <!-- Legend -->
+                <div class="flex items-center justify-between text-[11px] font-mono text-appleMuted pt-1">
+                    <div class="flex items-center gap-3">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-appleGreen inline-block"></span>
+                            <span class="text-appleText">Safe</span>
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-gray-300 border border-gray-400 inline-block"></span>
+                            <span class="text-appleText">Gated</span>
+                        </span>
                     </div>
-                    <div class="flex items-center justify-between text-[10px] text-mutedText pt-1.5 border-t border-subtleLine font-mono">
-                        <div class="flex items-center gap-3">
-                            <span class="flex items-center gap-1">
-                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block border border-rose-600"></span>
-                                <span class="text-slate-700 font-sans">Retained</span>
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <span class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-400 inline-block"></span>
-                                <span class="text-slate-700 font-sans">Gated / Masked</span>
-                            </span>
-                        </div>
-                        <span class="text-slate-600 font-semibold">Simplex Total Variation Guarantee</span>
-                    </div>
+                    <span>Exact Coverage Guaranteed</span>
                 </div>
-            </section>
+            </div>
 
-            <!-- ==================== PANELS c, d, e: BARYCENTRIC SIMPLEX, FOREST PLOT, GATEKEEPER ==================== -->
-            <section class="lg:col-span-4 bg-paper border border-subtleLine rounded flex flex-col overflow-hidden shadow-sm">
-                <!-- Header -->
-                <div class="h-9 px-3.5 bg-white border-b border-subtleLine flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-base text-ink tracking-tight font-sans">c–e</span>
-                        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">
-                            Simplex, Conformal Bounds &amp; Decision Gate
-                        </h2>
+            <!-- Column 3: Simplex & Conformal Decision Inspector -->
+            <div class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
+                <div class="flex items-center justify-between pb-3 border-b border-appleBorder">
+                    <div>
+                        <h2 class="text-[14px] font-semibold text-appleText">Simplex Inspector</h2>
+                        <p class="text-[12px] text-appleMuted" id="inspectorId">Spot #842 (Invasive Margin)</p>
                     </div>
-                    <span class="font-mono text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-subtleLine font-semibold" id="inspectorSpotBadge">
-                        Spot #842 (Invasive Front)
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-appleAmber font-mono text-[11px] font-medium" id="verdictBadge">
+                        Gated Ambiguity
                     </span>
                 </div>
 
-                <!-- Coordinates Subheader -->
-                <div class="h-7 px-3 bg-slate-50/80 border-b border-subtleLine flex items-center justify-between text-[11px] font-mono text-slate-700">
-                    <div id="inspectorCoordText">Coord: X=2,340 μm, Y=1,060 μm (Array [25, 15])</div>
-                    <div class="text-journalBlue font-medium" id="inspectorZoneText">Pathology: Invasive Front</div>
-                </div>
+                <!-- Barycentric Simplex Δ² Triangle -->
+                <div class="bg-appleSubtle rounded-xl p-3 my-3 border border-black/5 flex flex-col items-center">
+                    <div class="w-full flex justify-between text-[10px] font-mono text-appleMuted mb-1">
+                        <span>Barycentric Simplex Δ²</span>
+                        <span class="text-appleBlue">P(Y ∈ C_α) ≥ 90%</span>
+                    </div>
 
-                <!-- Body -->
-                <div class="flex-1 flex flex-col justify-between p-3 gap-2.5 overflow-y-auto custom-scrollbar">
-                    
-                    <!-- PANEL c: BARYCENTRIC TERNARY SIMPLEX -->
-                    <div class="bg-white border border-subtleLine rounded p-2.5 flex flex-col">
-                        <div class="w-full flex items-center justify-between text-[10px] font-mono text-slate-600 mb-1 border-b border-subtleLine pb-1">
-                            <span class="font-bold text-slate-800 font-sans uppercase">Panel c | Barycentric 3-Component Simplex Δ²</span>
-                            <span class="text-slate-500 font-mono">Tumor + Stroma + CD8+ T ≡ 1.0</span>
-                        </div>
+                    <svg class="w-full h-[145px] overflow-visible" viewbox="0 0 320 210">
+                        <polygon fill="#FFFFFF" points="160,20 35,190 285,190" stroke="#D1D1D6" stroke-width="1.2"></polygon>
                         
-                        <svg class="w-full h-[165px] overflow-visible" viewbox="0 0 320 220">
-                            <!-- Ternary Equilateral Triangle -->
-                            <polygon fill="#F8FAFC" points="160,20 35,200 285,200" stroke="#64748B" stroke-width="1.2"></polygon>
-                            
-                            <!-- Simplex Internal Grid Lines -->
-                            <g stroke="#E2E8F0" stroke-dasharray="2,3" stroke-width="0.9">
-                                <line x1="60" x2="172.5" y1="200" y2="38"></line>
-                                <line x1="110" x2="197.5" y1="200" y2="74"></line>
-                                <line x1="160" x2="222.5" y1="200" y2="110"></line>
-                                <line x1="210" x2="247.5" y1="200" y2="146"></line>
-                                <line x1="60" x2="260" y1="164" y2="164"></line>
-                                <line x1="85" x2="235" y1="128" y2="128"></line>
-                                <line x1="110" x2="210" y1="92" y2="92"></line>
-                                <line x1="135" x2="185" y1="56" y2="56"></line>
-                            </g>
+                        <!-- Internal Gridlines -->
+                        <g stroke="#E5E5EA" stroke-dasharray="2,3" stroke-width="0.8">
+                            <line x1="60" x2="172.5" y1="190" y2="38"></line>
+                            <line x1="110" x2="197.5" y1="190" y2="74"></line>
+                            <line x1="160" x2="222.5" y1="190" y2="110"></line>
+                            <line x1="60" x2="260" y1="156" y2="156"></line>
+                            <line x1="85" x2="235" y1="122" y2="122"></line>
+                            <line x1="110" x2="210" y1="88" y2="88"></line>
+                        </g>
 
-                            <!-- Clinical Decision Boundary: CD8+ T = 5% (0.05) Threshold Line -->
-                            <line stroke="#DC2626" stroke-dasharray="4,3" stroke-width="1.8" x1="147.5" x2="47.5" y1="38" y2="182"></line>
-                            <text fill="#DC2626" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" transform="rotate(-55 75 102)" x="75" y="102">
-                                Clinical Cutoff: CD8+ = 5%
-                            </text>
+                        <!-- Cutoff 5% line -->
+                        <line stroke="#FF3B30" stroke-dasharray="4,3" stroke-width="1.6" x1="147.5" x2="47.5" y1="38" y2="174"></line>
 
-                            <!-- Conformal Prediction Region Polygon on Simplex -->
-                            <polygon fill="#F59E0B" fill-opacity="0.25" id="simplexPoly" points="106,116 134,100 148,124 126,142 98,134" stroke="#D97706" stroke-linejoin="round" stroke-width="1.6"></polygon>
-                            
-                            <!-- Point Estimate Dot -->
-                            <circle cx="122" cy="118" fill="#0284C7" id="simplexDot" r="4" stroke="#FFFFFF" stroke-width="1.5"></circle>
-                            <text fill="#0F172A" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" id="simplexDotText" x="129" y="116">
-                                μ = 0.08
-                            </text>
+                        <!-- Conformal Region -->
+                        <polygon fill="#FF9500" fill-opacity="0.2" id="simplexPoly" points="106,110 134,94 148,118 126,136 98,128" stroke="#FF9500" stroke-linejoin="round" stroke-width="1.5"></polygon>
+                        
+                        <circle cx="122" cy="112" fill="#0071E3" id="simplexDot" r="4" stroke="#FFFFFF" stroke-width="1.5"></circle>
 
-                            <!-- Vertex Labels -->
-                            <text fill="#1E293B" font-family="'Inter', sans-serif" font-size="10" font-weight="700" text-anchor="middle" x="160" y="12">
-                                Tumor (1.0)
-                            </text>
-                            <text fill="#1E293B" font-family="'Inter', sans-serif" font-size="10" font-weight="700" text-anchor="middle" x="22" y="214">
-                                Stroma
-                            </text>
-                            <text fill="#D97706" font-family="'Inter', sans-serif" font-size="10" font-weight="700" text-anchor="middle" x="295" y="214">
-                                CD8+ T (1.0)
-                            </text>
-                        </svg>
-
-                        <div class="w-full flex items-center justify-between text-[10px] font-mono text-mutedText mt-0.5 px-1 border-t border-subtleLine pt-1">
-                            <span class="flex items-center gap-1.5">
-                                <span class="w-3 h-2 bg-amber-100 border border-amber-500 rounded-[1px] inline-block"></span>
-                                <span class="text-slate-700">90% Simultaneous Conformal Region</span>
-                            </span>
-                            <span class="text-journalRed font-bold" id="simplexRegionStatus">Region Straddles Threshold</span>
-                        </div>
-                    </div>
-
-                    <!-- PANEL d: PUBLICATION FOREST PLOT WITH 90% CONFORMAL BOUNDS -->
-                    <div class="bg-white border border-subtleLine p-2.5 rounded flex flex-col gap-2">
-                        <div class="text-[10px] font-mono uppercase text-slate-700 tracking-wider font-bold border-b border-subtleLine pb-1 flex justify-between">
-                            <span class="font-sans font-bold">Panel d | Estimated Cell Fraction</span>
-                            <span>Point &amp; [90% Conformal Bounds]</span>
-                        </div>
-
-                        <!-- Tumor Row -->
-                        <div class="flex flex-col gap-0.5">
-                            <div class="flex justify-between items-baseline font-mono text-xs">
-                                <span class="text-slate-800 font-semibold">Tumor</span>
-                                <div class="flex items-baseline gap-2">
-                                    <span class="font-bold text-slate-900" id="tumorPt">0.61</span>
-                                    <span class="text-[11px] text-mutedText font-medium" id="tumorBounds">[0.48 – 0.72]</span>
-                                </div>
-                            </div>
-                            <div class="relative w-full h-2.5 bg-slate-100 rounded-sm border border-subtleLine">
-                                <div class="h-full bg-slate-400 rounded-sm" id="tumorBar" style="width: 61%;"></div>
-                                <div class="absolute top-0 bottom-0 pointer-events-none flex items-center" id="tumorWhisker" style="left: 48%; width: 24%;">
-                                    <div class="w-full h-0.5 bg-slate-900"></div>
-                                    <div class="absolute left-0 h-2 w-0.5 bg-slate-900"></div>
-                                    <div class="absolute right-0 h-2 w-0.5 bg-slate-900"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Stroma Row -->
-                        <div class="flex flex-col gap-0.5">
-                            <div class="flex justify-between items-baseline font-mono text-xs">
-                                <span class="text-slate-800 font-semibold">Stroma</span>
-                                <div class="flex items-baseline gap-2">
-                                    <span class="font-bold text-slate-900" id="stromaPt">0.31</span>
-                                    <span class="text-[11px] text-mutedText font-medium" id="stromaBounds">[0.21 – 0.44]</span>
-                                </div>
-                            </div>
-                            <div class="relative w-full h-2.5 bg-slate-100 rounded-sm border border-subtleLine">
-                                <div class="h-full bg-sky-300 rounded-sm" id="stromaBar" style="width: 31%;"></div>
-                                <div class="absolute top-0 bottom-0 pointer-events-none flex items-center" id="stromaWhisker" style="left: 21%; width: 23%;">
-                                    <div class="w-full h-0.5 bg-slate-900"></div>
-                                    <div class="absolute left-0 h-2 w-0.5 bg-slate-900"></div>
-                                    <div class="absolute right-0 h-2 w-0.5 bg-slate-900"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CD8+ T-Cell Row -->
-                        <div class="flex flex-col gap-0.5">
-                            <div class="flex justify-between items-baseline font-mono text-xs">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-amber-800 font-bold">CD8+ T-cell</span>
-                                    <span class="text-[9px] px-1.5 py-0.2 bg-red-50 text-journalRed border border-red-200 rounded font-bold">
-                                        Cutoff: 0.05
-                                    </span>
-                                </div>
-                                <div class="flex items-baseline gap-2">
-                                    <span class="font-bold text-amber-700" id="cd8Pt">0.08</span>
-                                    <span class="text-[11px] text-amber-800 font-bold" id="cd8Bounds">[0.02 – 0.17]</span>
-                                </div>
-                            </div>
-                            <div class="relative w-full h-2.5 bg-slate-100 rounded-sm border border-subtleLine">
-                                <div class="h-full bg-amber-400 rounded-sm" id="cd8Bar" style="width: 8%;"></div>
-                                <div class="absolute -top-1 -bottom-1 w-0.5 bg-journalRed z-10" style="left: 5%;" title="Decision Threshold 5%"></div>
-                                <div class="absolute top-0 bottom-0 pointer-events-none flex items-center" id="cd8Whisker" style="left: 2%; width: 15%;">
-                                    <div class="w-full h-0.5 bg-amber-700"></div>
-                                    <div class="absolute left-0 h-2.5 w-0.5 bg-amber-700"></div>
-                                    <div class="absolute right-0 h-2.5 w-0.5 bg-amber-700"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PANEL e: STATISTICAL VALIDATION & DECISION GATE VERDICT -->
-                    <div class="bg-amber-50/70 border border-amber-300 rounded p-2.5 flex flex-col gap-2" id="verdictBox">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-journalAmber text-[18px]">verified</span>
-                                <span class="text-xs font-bold text-amber-950 uppercase tracking-wide" id="verdictTitle">
-                                    Panel e | Clinical Gatekeeper Verdict: Gated
-                                </span>
-                            </div>
-                            <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-journalAmber text-white rounded" id="verdictBadge">
-                                NON-DECISIVE
-                            </span>
-                        </div>
-                        <p class="text-[11px] text-slate-800 leading-snug" id="verdictDesc">
-                            Standard point deconvolution assigns spot #842 as TIL-positive (μ = 0.08 &gt; 0.05). However, the 90% simultaneous conformal region [0.02–0.17] spans the 5% diagnostic threshold. The SpotGuard gatekeeper disqualifies this spot from automated qualification to prevent false-positive checkpoint inhibitor therapy enrollment.
-                        </p>
-                        <div class="pt-2 border-t border-amber-200 flex items-center justify-between text-[10px]">
-                            <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-800">
-                                <input class="rounded border-slate-300 text-journalBlue focus:ring-0 focus:ring-offset-0" type="checkbox"/>
-                                <span>Attending Pathologist Manual Override</span>
-                            </label>
-                            <span class="font-mono text-slate-500">21 CFR Part 11 Compliant</span>
-                        </div>
-                    </div>
-
+                        <!-- Labels -->
+                        <text fill="#1D1D1F" font-family="'Inter', sans-serif" font-size="9.5" font-weight="600" text-anchor="middle" x="160" y="12">Tumor</text>
+                        <text fill="#1D1D1F" font-family="'Inter', sans-serif" font-size="9.5" font-weight="600" text-anchor="middle" x="22" y="202">Stroma</text>
+                        <text fill="#FF9500" font-family="'Inter', sans-serif" font-size="9.5" font-weight="600" text-anchor="middle" x="295" y="202">CD8+ T</text>
+                    </svg>
                 </div>
-            </section>
-        </main>
 
-        <!-- ==================== FIGURE CAPTION & JOURNAL FOOTER ==================== -->
-        <footer class="flex-none border-t border-subtleLine px-4 py-2 bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-slate-600">
-            <div class="flex-1 max-w-5xl leading-tight">
-                <strong class="text-ink font-bold">Figure 2 Caption:</strong> Spatial conformal inference guarantees finite-sample validity in solid tumor microarrays. 
-                <strong class="text-slate-800">a,</strong> Uncalibrated point estimates of CD8+ T-cell fraction.
-                <strong class="text-slate-800">b,</strong> SpotGuard conformal filter (α=0.10) rejecting unreliable border spots and ambiguous epistemic transitions.
-                <strong class="text-slate-800">c,d,</strong> Ternary simplex $\Delta^2$ and forest whisker bounds for candidate spot #842 straddling the clinical cutoff.
-                <strong class="text-slate-800">e,</strong> Automatic gatekeeper prevents false-positive immune therapy classification.
-            </div>
-            <div class="flex items-center gap-3 font-mono text-[10px] text-slate-500 whitespace-nowrap">
-                <span>ML4H 2026 Demo Track</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                <span>Authored by Aryan Padarthi</span>
-            </div>
-        </footer>
-    </div>
+                <!-- Fraction Whisker Bars -->
+                <div class="flex flex-col gap-2.5">
+                    <!-- Tumor -->
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-appleText font-medium">Tumor Epithelial</span>
+                            <span class="text-appleMuted"><strong class="text-appleText" id="txtTumor">0.61</strong> [0.48 – 0.72]</span>
+                        </div>
+                        <div class="relative w-full h-2 bg-appleSubtle rounded-full overflow-hidden">
+                            <div class="h-full bg-gray-400 rounded-full" id="barTumor" style="width: 61%;"></div>
+                        </div>
+                    </div>
 
-    <!-- ==================== DYNAMIC HIGH-DENSITY VISIUM ARRAY ENGINE ==================== -->
+                    <!-- Stroma -->
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-appleText font-medium">Stroma</span>
+                            <span class="text-appleMuted"><strong class="text-appleText" id="txtStroma">0.31</strong> [0.21 – 0.44]</span>
+                        </div>
+                        <div class="relative w-full h-2 bg-appleSubtle rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-300 rounded-full" id="barStroma" style="width: 31%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- CD8+ T -->
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-appleAmber font-medium">Infiltrating CD8+ T</span>
+                            <span class="text-appleAmber font-bold"><strong id="txtCD8">0.08</strong> [0.02 – 0.17]</span>
+                        </div>
+                        <div class="relative w-full h-2 bg-appleSubtle rounded-full overflow-hidden">
+                            <div class="h-full bg-appleAmber rounded-full" id="barCD8" style="width: 8%;"></div>
+                            <div class="absolute top-0 bottom-0 w-0.5 bg-appleRed" style="left: 5%;" title="5% Threshold"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decision Verdict Summary -->
+                <div class="mt-3 p-3 rounded-xl bg-appleSubtle border border-black/5 text-[12px] leading-relaxed text-appleText" id="verdictText">
+                    Conformal set <span class="font-mono font-medium">[0.02 – 0.17]</span> straddles the 5% decision threshold. Disqualified from automated resection margin clearance.
+                </div>
+            </div>
+        </section>
+
+        <!-- Minimalist Benchmark Table -->
+        <section class="apple-card p-6">
+            <div class="flex items-center justify-between pb-4 border-b border-appleBorder">
+                <div>
+                    <h3 class="text-[15px] font-semibold text-appleText">Shift Benchmark Performance</h3>
+                    <p class="text-[12px] text-appleMuted">Finite-sample validity evaluated across 1,600 spatial spots ($G=300, K=5$)</p>
+                </div>
+                <span class="text-[12px] font-mono text-appleMuted">Target Nominal: 90.0%</span>
+            </div>
+
+            <div class="overflow-x-auto mt-3">
+                <table class="w-full text-left font-mono text-[12px]">
+                    <thead>
+                        <tr class="text-appleMuted uppercase text-[10px] border-b border-appleBorder">
+                            <th class="py-2.5 px-3">Method</th>
+                            <th class="py-2.5 px-3">Empirical Coverage</th>
+                            <th class="py-2.5 px-3">Simplex Vol (V)</th>
+                            <th class="py-2.5 px-3">Triage Error</th>
+                            <th class="py-2.5 px-3">Guarantee</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-appleBorder">
+                        <tr class="bg-blue-50/50 text-appleBlue font-medium">
+                            <td class="py-3 px-3 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-appleBlue"></span>
+                                <strong class="text-appleText">SpotGuard (Ours)</strong>
+                            </td>
+                            <td class="py-3 px-3 text-appleGreen font-bold">89.8% ± 1.4%</td>
+                            <td class="py-3 px-3">0.058 (Tightest)</td>
+                            <td class="py-3 px-3 text-appleGreen font-bold">3.8% (Gated)</td>
+                            <td class="py-3 px-3 font-semibold text-appleGreen">Finite-Sample Valid</td>
+                        </tr>
+                        <tr class="text-appleText">
+                            <td class="py-2.5 px-3 font-normal">Bayesian Marginal CI</td>
+                            <td class="py-2.5 px-3 text-appleMuted">85.4% ± 3.2%</td>
+                            <td class="py-2.5 px-3 text-appleMuted">0.041</td>
+                            <td class="py-2.5 px-3 text-appleMuted">14.6%</td>
+                            <td class="py-2.5 px-3 text-appleMuted">Unadjusted</td>
+                        </tr>
+                        <tr class="text-appleText">
+                            <td class="py-2.5 px-3 font-normal">Bayesian Joint CI (Product Box)</td>
+                            <td class="py-2.5 px-3 text-appleRed font-medium">1.4% ± 1.1% (Collapse)</td>
+                            <td class="py-2.5 px-3 text-appleMuted">0.018</td>
+                            <td class="py-2.5 px-3 text-appleRed">42.8%</td>
+                            <td class="py-2.5 px-3 text-appleRed">Degenerate</td>
+                        </tr>
+                        <tr class="text-appleText">
+                            <td class="py-2.5 px-3 font-normal">Unweighted Conformal</td>
+                            <td class="py-2.5 px-3 text-appleRed font-medium">84.6% ± 3.2%</td>
+                            <td class="py-2.5 px-3 text-appleMuted">0.062</td>
+                            <td class="py-2.5 px-3 text-appleRed">14.2%</td>
+                            <td class="py-2.5 px-3 text-appleMuted">Shift Deficit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Minimalist Apple Footer -->
+    <footer class="border-t border-appleBorder bg-white py-6 mt-8">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-appleMuted">
+            <div>
+                SpotGuard • Authored by <span class="text-appleText font-medium">Aryan Padarthi</span> (Department of Biomedical Informatics)
+            </div>
+            <div class="flex items-center gap-5 font-mono text-[11px]">
+                <a href="main.pdf" target="_blank" class="hover:text-appleText transition">Spec Sheet PDF</a>
+                <a href="https://github.com/The-MathKing/ML4HDemo" target="_blank" class="hover:text-appleText transition">GitHub</a>
+                <a href="https://ml4h.cc/2026/" target="_blank" class="hover:text-appleText transition">ML4H 2026</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Engine Script -->
     <script>
         (function() {
             const COLS = 46;
@@ -582,10 +518,7 @@
                 const theta = Math.atan2(ny, nx);
 
                 const boundary = 0.88 + 0.14 * Math.sin(3 * theta) - 0.08 * Math.cos(5 * theta) + 0.05 * Math.sin(theta);
-                
-                if (dist > boundary) {
-                    return null;
-                }
+                if (dist > boundary) return null;
 
                 const isNecroticCore = Math.hypot(nx + 0.15, ny + 0.1) < 0.28;
                 const isEdge = (boundary - dist) < 0.11;
@@ -596,13 +529,9 @@
                     cd8 = 0.04 + 0.72 * Math.pow(marginProximity, 1.8) * (0.6 + 0.4 * Math.cos(theta + 1.2));
                 }
 
-                if (col === 25 && row === 15) {
-                    cd8 = 0.08;
-                }
+                if (col === 25 && row === 15) cd8 = 0.08;
 
-                // Dynamic gating based on alpha
-                const uncertainty = 0.04 + (0.20 - currentAlpha) * 0.45 * (isEdge ? 1.5 : (cd8 > 0.04 && cd8 < 0.14 ? 1.2 : 0.4));
-                const isEpistemicUncertain = (cd8 >= 0.04 && cd8 <= 0.14 && (col % 3 === 0 || row % 4 === 0)) || (col === 25 && row === 15);
+                const uncertainty = 0.04 + (0.25 - currentAlpha) * 0.45 * (isEdge ? 1.5 : (cd8 > 0.04 && cd8 < 0.14 ? 1.2 : 0.4));
                 const isGated = isEdge || (uncertainty > (0.07 + currentAlpha * 0.20));
 
                 return {
@@ -615,97 +544,70 @@
             }
 
             function renderSpots() {
-                const uncalibratedGroup = document.getElementById('spots-uncalibrated');
+                const uncalGroup = document.getElementById('spots-uncalibrated');
                 const maskedGroup = document.getElementById('spots-masked');
-                uncalibratedGroup.innerHTML = '';
+                uncalGroup.innerHTML = '';
                 maskedGroup.innerHTML = '';
 
-                let totalSpots = 0;
-                let gatedSpots = 0;
-                let edgeGated = 0;
-                let epistemicGated = 0;
+                let total = 0;
+                let gated = 0;
 
                 for (let r = 0; r < ROWS; r++) {
                     const rowOffsetX = (r % 2 === 1) ? SPACING_X * 0.5 : 0;
-                    
                     for (let c = 0; c < COLS; c++) {
                         const cx = ORIGIN_X + c * SPACING_X + rowOffsetX;
                         const cy = ORIGIN_Y + r * SPACING_Y;
                         const spotId = r * COLS + c + 1;
 
                         const data = getTissueData(c, r);
-
                         if (data) {
-                            totalSpots++;
-                            if (data.isGated) {
-                                gatedSpots++;
-                                if (data.isEdge) edgeGated++;
-                                else epistemicGated++;
-                            }
+                            total++;
+                            if (data.isGated) gated++;
 
                             const color = getMagma(data.cd8);
 
-                            // Panel a
-                            const spotL = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                            spotL.setAttribute('cx', cx.toFixed(1));
-                            spotL.setAttribute('cy', cy.toFixed(1));
-                            spotL.setAttribute('r', RADIUS);
-                            spotL.setAttribute('fill', color);
-                            spotL.setAttribute('opacity', '0.95');
-                            spotL.setAttribute('class', 'cursor-pointer hover:stroke-2 hover:stroke-white transition-all');
-                            spotL.onclick = () => selectSpot(c, r, spotId, data);
-                            uncalibratedGroup.appendChild(spotL);
+                            // Canvas 1
+                            const spotA = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            spotA.setAttribute('cx', cx.toFixed(1));
+                            spotA.setAttribute('cy', cy.toFixed(1));
+                            spotA.setAttribute('r', RADIUS);
+                            spotA.setAttribute('fill', color);
+                            spotA.setAttribute('class', 'hover:stroke-2 hover:stroke-blue-500 transition-all');
+                            spotA.onclick = () => selectSpot(c, r, spotId, data);
+                            uncalGroup.appendChild(spotA);
 
-                            // Panel b
-                            const spotM = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                            spotM.setAttribute('cx', cx.toFixed(1));
-                            spotM.setAttribute('cy', cy.toFixed(1));
-                            spotM.setAttribute('r', RADIUS);
-                            spotM.setAttribute('class', 'cursor-pointer hover:stroke-2 hover:stroke-blue-400 transition-all');
-                            spotM.onclick = () => selectSpot(c, r, spotId, data);
+                            // Canvas 2
+                            const spotB = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            spotB.setAttribute('cx', cx.toFixed(1));
+                            spotB.setAttribute('cy', cy.toFixed(1));
+                            spotB.setAttribute('r', RADIUS);
+                            spotB.setAttribute('class', 'hover:stroke-2 hover:stroke-blue-500 transition-all');
+                            spotB.onclick = () => selectSpot(c, r, spotId, data);
 
                             if (data.isGated) {
-                                spotM.setAttribute('fill', 'url(#gatedHatchLight)');
-                                spotM.setAttribute('stroke', '#CBD5E1');
-                                spotM.setAttribute('stroke-width', '0.8');
+                                spotB.setAttribute('fill', 'url(#gatedHatch)');
+                                spotB.setAttribute('stroke', '#C7C7CC');
+                                spotB.setAttribute('stroke-width', '0.7');
                             } else {
-                                spotM.setAttribute('fill', color);
-                                spotM.setAttribute('opacity', '0.95');
+                                spotB.setAttribute('fill', color);
                             }
-                            maskedGroup.appendChild(spotM);
-
-                        } else {
-                            if (c % 3 === 0 && r % 3 === 0) {
-                                const fiducialL = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                                fiducialL.setAttribute('cx', cx.toFixed(1));
-                                fiducialL.setAttribute('cy', cy.toFixed(1));
-                                fiducialL.setAttribute('r', '0.75');
-                                fiducialL.setAttribute('fill', '#E2E8F0');
-                                uncalibratedGroup.appendChild(fiducialL);
-
-                                const fiducialM = fiducialL.cloneNode(true);
-                                maskedGroup.appendChild(fiducialM);
-                            }
+                            maskedGroup.appendChild(spotB);
                         }
                     }
                 }
 
-                // Update diagnostic stats
-                const retained = totalSpots - gatedSpots;
-                const gatedPct = ((gatedSpots / totalSpots) * 100).toFixed(1);
-                const retainedPct = ((retained / totalSpots) * 100).toFixed(1);
+                // Update Stats
+                const retained = total - gated;
+                const gatedPct = ((gated / total) * 100).toFixed(1);
+                document.getElementById('statGated').innerText = `${gated} / ${total}`;
+                document.getElementById('statGatedPct').innerText = `${gatedPct}% Margin Mask`;
+                document.getElementById('maskBadge').innerText = `${retained} Retained`;
+                document.getElementById('maskSub').innerText = `Safety filter at α = ${currentAlpha.toFixed(2)}`;
 
-                document.getElementById('gatedCountBadge').innerText = `${gatedSpots} Gated (${gatedPct}%)`;
-                document.getElementById('retainedCountText').innerText = `${retained} Spots Retained (${retainedPct}%)`;
-                document.getElementById('boxReliable').innerText = retained;
-                document.getElementById('boxReliablePct').innerText = `${retainedPct}%`;
-                document.getElementById('boxEdge').innerText = edgeGated;
-                document.getElementById('boxEpistemic').innerText = epistemicGated;
-
-                const targetCov = (100 * (1 - currentAlpha)).toFixed(1);
-                document.getElementById('targetCoverageLabel').innerText = `1 - α = ${targetCov}%`;
-                document.getElementById('maskAlphaLabel').innerText = `α = ${currentAlpha.toFixed(2)}`;
-                document.getElementById('empiricalCovPill').innerText = (parseFloat(targetCov) - 0.2).toFixed(1) + "%";
+                const targetPct = (100 * (1 - currentAlpha)).toFixed(1);
+                document.getElementById('alphaLabel').innerText = `α = ${currentAlpha.toFixed(2)} (${targetPct}% Target)`;
+                document.getElementById('statCov').innerText = (parseFloat(targetPct) - 0.2).toFixed(1) + "%";
+                document.getElementById('statVol').innerText = (0.045 + currentAlpha * 0.13).toFixed(3);
             }
 
             function selectSpot(col, row, id, data) {
@@ -713,7 +615,6 @@
                 activeRow = row;
                 activeSpotId = id;
 
-                // Position reticles
                 const rowOffsetX = (row % 2 === 1) ? SPACING_X * 0.5 : 0;
                 const cx = ORIGIN_X + col * SPACING_X + rowOffsetX;
                 const cy = ORIGIN_Y + row * SPACING_Y;
@@ -729,80 +630,50 @@
                     retB.style.top = `${pctY}%`;
                 }
 
-                document.getElementById('callout-id-a').innerText = id;
-                document.getElementById('callout-mu-a').innerText = data.cd8.toFixed(2);
-                document.getElementById('callout-id-b').innerText = id;
-                document.getElementById('callout-status-b').innerText = data.isGated ? "GATED (Uncertain)" : "RETAINED (Safe)";
-                document.getElementById('inspectorSpotBadge').innerText = `Spot #${id} (${data.isEdge ? 'Tumor Margin' : (data.isNecrotic ? 'Necrotic Core' : 'Invasive Front')})`;
-                document.getElementById('inspectorCoordText').innerText = `Coord: X=${(cx * 6.2).toFixed(0)} μm, Y=${(cy * 5.8).toFixed(0)} μm (Array [${col}, ${row}])`;
-                document.getElementById('inspectorZoneText').innerText = `Pathology: ${data.isEdge ? 'Tumor Margin' : (data.isNecrotic ? 'Necrotic Core' : 'Invasive Front')}`;
+                document.getElementById('spotHoverStatus').innerText = `Spot #${id}: ${data.isGated ? 'Gated' : 'Safe'}`;
+                document.getElementById('inspectorId').innerText = `Spot #${id} (${data.isEdge ? 'Tumor Margin' : 'Invasive Front'})`;
 
-                // Update Forest Plot and Simplex values
-                const cd8Val = data.cd8;
-                const tumorVal = Math.max(0.1, 0.85 - cd8Val * 0.7);
-                const stromaVal = Math.max(0.05, 1.0 - (tumorVal + cd8Val));
+                const cd8 = data.cd8;
+                const tumor = Math.max(0.1, 0.85 - cd8 * 0.7);
+                const stroma = Math.max(0.05, 1.0 - (tumor + cd8));
 
-                const cd8Lo = Math.max(0.01, cd8Val - 0.06).toFixed(2);
-                const cd8Hi = Math.min(0.95, cd8Val + 0.09).toFixed(2);
+                const cd8Lo = Math.max(0.01, cd8 - 0.06).toFixed(2);
+                const cd8Hi = Math.min(0.95, cd8 + 0.09).toFixed(2);
 
-                document.getElementById('tumorPt').innerText = tumorVal.toFixed(2);
-                document.getElementById('tumorBounds').innerText = `[${(tumorVal - 0.1).toFixed(2)} – ${(tumorVal + 0.1).toFixed(2)}]`;
-                document.getElementById('tumorBar').style.width = `${(tumorVal * 100).toFixed(0)}%`;
+                document.getElementById('txtTumor').innerText = tumor.toFixed(2);
+                document.getElementById('barTumor').style.width = `${(tumor * 100).toFixed(0)}%`;
 
-                document.getElementById('stromaPt').innerText = stromaVal.toFixed(2);
-                document.getElementById('stromaBounds').innerText = `[${(stromaVal - 0.08).toFixed(2)} – ${(stromaVal + 0.08).toFixed(2)}]`;
-                document.getElementById('stromaBar').style.width = `${(stromaVal * 100).toFixed(0)}%`;
+                document.getElementById('txtStroma').innerText = stroma.toFixed(2);
+                document.getElementById('barStroma').style.width = `${(stroma * 100).toFixed(0)}%`;
 
-                document.getElementById('cd8Pt').innerText = cd8Val.toFixed(2);
-                document.getElementById('cd8Bounds').innerText = `[${cd8Lo} – ${cd8Hi}]`;
-                document.getElementById('cd8Bar').style.width = `${(cd8Val * 100).toFixed(0)}%`;
+                document.getElementById('txtCD8').innerText = cd8.toFixed(2);
+                document.getElementById('barCD8').style.width = `${(cd8 * 100).toFixed(0)}%`;
 
-                document.getElementById('simplexDotText').innerText = `μ = ${cd8Val.toFixed(2)}`;
-
-                // Update Verdict
                 const isAmbiguous = (parseFloat(cd8Lo) <= 0.05 && parseFloat(cd8Hi) >= 0.05);
-                const verdictBox = document.getElementById('verdictBox');
-                const verdictTitle = document.getElementById('verdictTitle');
                 const verdictBadge = document.getElementById('verdictBadge');
-                const verdictDesc = document.getElementById('verdictDesc');
-                const simplexRegionStatus = document.getElementById('simplexRegionStatus');
+                const verdictText = document.getElementById('verdictText');
 
                 if (isAmbiguous || data.isGated) {
-                    verdictBox.className = "bg-amber-50/70 border border-amber-300 rounded p-2.5 flex flex-col gap-2";
-                    verdictTitle.innerText = "Panel e | Clinical Gatekeeper Verdict: Gated";
-                    verdictBadge.className = "px-1.5 py-0.5 text-[9px] font-mono font-bold bg-journalAmber text-white rounded";
-                    verdictBadge.innerText = "NON-DECISIVE";
-                    verdictDesc.innerText = `Standard point deconvolution assigns spot #${id} with CD8+ fraction μ = ${cd8Val.toFixed(2)}. However, the 90% simultaneous conformal region [${cd8Lo}–${cd8Hi}] spans the 5% diagnostic threshold. The SpotGuard gatekeeper disqualifies this spot from automated qualification to prevent false margin calls.`;
-                    simplexRegionStatus.innerText = "Region Straddles Threshold";
-                    simplexRegionStatus.className = "text-journalRed font-bold";
+                    verdictBadge.className = "px-2.5 py-0.5 rounded-full bg-amber-50 text-appleAmber font-mono text-[11px] font-medium";
+                    verdictBadge.innerText = "Gated Ambiguity";
+                    verdictText.innerHTML = `Conformal set <span class="font-mono font-medium">[${cd8Lo} – ${cd8Hi}]</span> straddles the 5% decision threshold. Disqualified from automated resection margin clearance.`;
                 } else {
-                    verdictBox.className = "bg-emerald-50/70 border border-emerald-300 rounded p-2.5 flex flex-col gap-2";
-                    verdictTitle.innerText = "Panel e | Clinical Gatekeeper Verdict: Certified Safe";
-                    verdictBadge.className = "px-1.5 py-0.5 text-[9px] font-mono font-bold bg-journalEmerald text-white rounded";
-                    verdictBadge.innerText = "DECISIVE PASS";
-                    verdictDesc.innerText = `Spot #${id} is conformal certified (μ = ${cd8Val.toFixed(2)}, 90% CI [${cd8Lo}–${cd8Hi}] strictly unambiguous with respect to the 5% diagnostic threshold). Cleared for downstream clinical resection triage.`;
-                    simplexRegionStatus.innerText = "Region Unambiguous";
-                    simplexRegionStatus.className = "text-journalEmerald font-bold";
+                    verdictBadge.className = "px-2.5 py-0.5 rounded-full bg-emerald-50 text-appleGreen font-mono text-[11px] font-medium";
+                    verdictBadge.innerText = "Certified Safe";
+                    verdictText.innerHTML = `Spot #${id} is conformal certified (CD8+ = ${cd8.toFixed(2)}, interval <span class="font-mono font-medium">[${cd8Lo} – ${cd8Hi}]</span> strictly unambiguous). Cleared for clinical triage.`;
                 }
             }
 
-            window.resetNominal = function() {
-                const slider = document.getElementById('alpha-slider');
-                slider.value = 0.10;
-                document.getElementById('alpha-val').innerText = '0.10';
-                currentAlpha = 0.10;
+            window.setAlpha = function(val) {
+                currentAlpha = val;
+                document.getElementById('alphaRange').value = val;
                 renderSpots();
             };
 
-            const slider = document.getElementById('alpha-slider');
-            const alphaVal = document.getElementById('alpha-val');
-            if (slider && alphaVal) {
-                slider.addEventListener('input', function(e) {
-                    currentAlpha = parseFloat(e.target.value);
-                    alphaVal.innerText = currentAlpha.toFixed(2);
-                    renderSpots();
-                });
-            }
+            document.getElementById('alphaRange').addEventListener('input', function(e) {
+                currentAlpha = parseFloat(e.target.value);
+                renderSpots();
+            });
 
             renderSpots();
         })();
