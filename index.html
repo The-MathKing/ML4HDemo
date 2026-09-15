@@ -96,13 +96,6 @@
         input[type=range]::-webkit-slider-thumb:hover {
             transform: scale(1.15);
         }
-
-        .tour-highlight {
-            border-color: #0284C7 !important;
-            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.25), 0 12px 36px rgba(2, 132, 199, 0.15) !important;
-            transform: scale(1.01);
-            z-index: 40;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col p-2 md:p-3">
@@ -128,12 +121,6 @@
 
         <!-- Action Controls -->
         <div class="flex items-center gap-2">
-            <!-- 2-Minute Demo Tour Button -->
-            <button onclick="toggleDemoTour()" id="tourTriggerBtn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11.5px] transition shadow-sm">
-                <span class="material-symbols-outlined text-[17px]">play_circle</span>
-                <span>2-MIN DEMO WALKTHROUGH</span>
-            </button>
-
             <!-- Spec Sheet PDF -->
             <a href="main.pdf" target="_blank" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-[11.5px] transition border border-slate-300">
                 <span class="material-symbols-outlined text-[16px] text-slate-700">picture_as_pdf</span>
@@ -148,60 +135,11 @@
         </div>
     </header>
 
-    <!-- FLOATING 2-MINUTE WALKTHROUGH TELEPROMPTER / CONTROLLER DOCK -->
-    <div id="tourDock" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-3xl bg-white/95 backdrop-blur-2xl border-2 border-sky-600 rounded-2xl shadow-2xl p-4 transition-all hidden">
-        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 font-mono">
-            <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded bg-sky-600 text-white font-extrabold text-[11px]" id="tourStepBadge">
-                    PHASE 1 OF 5
-                </span>
-                <span class="font-bold text-[13px] text-slate-900 uppercase" id="tourTitle">
-                    The Clinical Failure Mode (0:00 – 0:30)
-                </span>
-            </div>
-            
-            <div class="flex items-center gap-3 text-[12px]">
-                <span class="font-bold text-sky-700" id="tourTimer">0:00 / 2:00</span>
-                <button onclick="toggleAutoPlay()" id="tourPlayPauseBtn" class="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">
-                    <span class="material-symbols-outlined text-[18px]">pause</span>
-                </button>
-                <button onclick="toggleDemoTour()" class="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-500">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-3 font-sans">
-            <p class="text-[12.5px] font-semibold text-slate-800 leading-relaxed" id="tourScript">
-                "Spatial transcriptomics deconvolution algorithms like Cell2location estimate immune infiltration across 55µm spots. But under atlas-to-query platform shift, Bayesian models become severely overconfident along invasive tumor margins, declaring artificial 100% certainty where errors are highest."
-            </p>
-        </div>
-
-        <div class="flex items-center justify-between font-mono text-[11px]">
-            <div class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-sky-600" id="dot-0"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-1"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-2"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-3"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-4"></span>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button onclick="prevTourStep()" id="tourPrevBtn" class="px-3 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold border border-slate-300 disabled:opacity-30" disabled>
-                    ← PREV
-                </button>
-                <button onclick="nextTourStep()" id="tourNextBtn" class="px-4 py-1 rounded bg-sky-600 hover:bg-sky-700 text-white font-extrabold shadow-sm">
-                    NEXT STEP →
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- MAIN CLINICAL WORKSTATION BODY (WHITE THEMED) -->
     <div class="bg-slate-100 border-x-2 border-b-2 border-slate-300 rounded-b-2xl p-3 md:p-4 flex-1 flex flex-col gap-4">
 
         <!-- 1. CLINICAL DIAGNOSTIC CONTROL & TELEMETRY STRIP -->
-        <section id="section-metrics" class="med-card p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 font-mono">
+        <section class="med-card p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 font-mono">
             <!-- Left: Miscoverage Tolerance Controller -->
             <div class="flex-1 flex flex-col gap-1.5 max-w-md">
                 <div class="flex items-center justify-between text-[12px]">
@@ -274,7 +212,7 @@
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
             
             <!-- Viewport 1: Uncalibrated Standard Deconvolution -->
-            <div id="panel-a" class="lg:col-span-4 med-card p-4 flex flex-col justify-between">
+            <div class="lg:col-span-4 med-card p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between pb-2.5 border-b border-slate-200 text-xs font-mono">
                     <div class="flex items-center gap-2">
                         <span class="px-2 py-0.5 rounded bg-red-600 text-white font-extrabold text-[11px]">VIEW 01</span>
@@ -285,7 +223,7 @@
                     </span>
                 </div>
 
-                <!-- Spatial Canvas 1 (White Inset Well) -->
+                <!-- Spatial Canvas 1 -->
                 <div class="relative bg-white rounded-xl my-3 h-[375px] flex items-center justify-center overflow-hidden border-2 border-slate-200 med-grid shadow-inner">
                     <svg class="w-full h-full object-contain p-2 cursor-crosshair" id="svg-uncalibrated" viewbox="0 0 420 420">
                         <defs>
@@ -325,7 +263,7 @@
             </div>
 
             <!-- Viewport 2: SpotGuard Conformal Gatekeeper Mask -->
-            <div id="panel-b" class="lg:col-span-4 med-card p-4 flex flex-col justify-between">
+            <div class="lg:col-span-4 med-card p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between pb-2.5 border-b border-slate-200 text-xs font-mono">
                     <div class="flex items-center gap-2">
                         <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-extrabold text-[11px]">VIEW 02</span>
@@ -336,7 +274,7 @@
                     </span>
                 </div>
 
-                <!-- Spatial Canvas 2 (White Inset Well) -->
+                <!-- Spatial Canvas 2 -->
                 <div class="relative bg-white rounded-xl my-3 h-[375px] flex items-center justify-center overflow-hidden border-2 border-slate-200 med-grid shadow-inner">
                     <svg class="w-full h-full object-contain p-2 cursor-crosshair" id="svg-masked" viewbox="0 0 420 420">
                         <g id="spots-masked"></g>
@@ -345,7 +283,7 @@
                     <!-- Active Reticle -->
                     <div class="absolute pointer-events-none transition-all duration-150" id="reticle-b" style="left: 63.8%; top: 38.6%;">
                         <div class="w-7 h-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-amber-500 animate-pulse"></div>
-                        <div class="w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-600 absolute top-0 left-0 shadow-md border-2 border-white"></div>
+                        <div class="w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400 absolute top-0 left-0 shadow-md border-2 border-white"></div>
                     </div>
 
                     <div class="absolute top-2 right-2 text-[10.5px] font-mono text-slate-900 font-bold bg-white/95 px-2.5 py-1 rounded border border-slate-300 shadow-sm">
@@ -370,7 +308,7 @@
             </div>
 
             <!-- Viewport 3: Barycentric Simplex & Clinical Action Verdict -->
-            <div id="panel-c" class="lg:col-span-4 med-card p-4 flex flex-col justify-between font-mono">
+            <div class="lg:col-span-4 med-card p-4 flex flex-col justify-between font-mono">
                 <div class="flex items-center justify-between pb-2.5 border-b border-slate-200 text-xs">
                     <div class="flex items-center gap-2">
                         <span class="px-2 py-0.5 rounded bg-sky-600 text-white font-extrabold text-[11px]">DIAGNOSTIC</span>
@@ -457,7 +395,7 @@
                     </div>
                 </div>
 
-                <!-- HIGH-IMPACT CLINICAL ACTION VERDICT BOX -->
+                <!-- CLINICAL ACTION VERDICT BOX -->
                 <div class="mt-2 p-3 rounded-xl border-2 transition-all shadow-sm bg-red-50 border-red-300 text-red-950" id="verdictBox">
                     <div class="flex items-center justify-between">
                         <span class="font-extrabold uppercase text-[12px] text-red-950 flex items-center gap-1" id="verdictTitle">
@@ -476,7 +414,7 @@
         </section>
 
         <!-- 3. BENCHMARK COMPARISON TABLE -->
-        <section id="section-table" class="med-card p-4 font-mono text-[11.5px]">
+        <section class="med-card p-4 font-mono text-[11.5px]">
             <div class="flex items-center justify-between pb-2 border-b border-slate-200">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-sky-600 text-[18px]">science</span>
@@ -510,23 +448,23 @@
                         <tr class="text-slate-800 font-medium">
                             <td class="py-2 px-3">Bayesian Marginal CI</td>
                             <td class="py-2 px-3 text-slate-600">85.4% ± 3.2%</td>
-                            <td class="py-2 px-3 text-slate-600">0.041</td>
-                            <td class="py-2 px-3 text-slate-600">14.6%</td>
-                            <td class="py-2 px-3 text-slate-500">Unadjusted Marginals</td>
+                            <td class="py-2.5 px-3 text-slate-600">0.041</td>
+                            <td class="py-2.5 px-3 text-slate-600">14.6%</td>
+                            <td class="py-2.5 px-3 text-slate-500">Unadjusted Marginals</td>
                         </tr>
                         <tr class="text-slate-800 font-medium">
                             <td class="py-2 px-3">Bayesian Joint CI (Product Box)</td>
                             <td class="py-2 px-3 text-red-600 font-bold">1.4% ± 1.1% (Collapse)</td>
-                            <td class="py-2 px-3 text-slate-600">0.018</td>
-                            <td class="py-2 px-3 text-red-600 font-bold">42.8%</td>
-                            <td class="py-2 px-3 text-red-600 font-bold">Degenerate Collapse</td>
+                            <td class="py-2.5 px-3 text-slate-600">0.018</td>
+                            <td class="py-2.5 px-3 text-red-600 font-bold">42.8%</td>
+                            <td class="py-2.5 px-3 text-red-600 font-bold">Degenerate Collapse</td>
                         </tr>
                         <tr class="text-slate-800 font-medium">
                             <td class="py-2 px-3">Unweighted Conformal</td>
                             <td class="py-2 px-3 text-red-600 font-bold">84.6% ± 3.2%</td>
-                            <td class="py-2 px-3 text-slate-600">0.062</td>
-                            <td class="py-2 px-3 text-red-600">14.2%</td>
-                            <td class="py-2 px-3 text-slate-500">Broken Exchangeability</td>
+                            <td class="py-2.5 px-3 text-slate-600">0.062</td>
+                            <td class="py-2.5 px-3 text-red-600">14.2%</td>
+                            <td class="py-2.5 px-3 text-slate-500">Broken Exchangeability</td>
                         </tr>
                     </tbody>
                 </table>
@@ -758,164 +696,6 @@
                 currentAlpha = parseFloat(e.target.value);
                 renderSpots();
             });
-
-            // 2-MINUTE DEMO TOUR CONTROLLER
-            const tourSteps = [
-                {
-                    title: "The Clinical Failure Mode (0:00 – 0:30)",
-                    script: "Spatial transcriptomics deconvolution algorithms like Cell2location estimate immune infiltration across 55µm spots. But under atlas-to-query platform shift, Bayesian models become severely overconfident along invasive tumor margins, declaring artificial 100% certainty where errors are highest.",
-                    highlight: "panel-a",
-                    action: () => {
-                        selectSpot(25, 15, 842, getTissueData(25, 15));
-                        document.getElementById('panel-a').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                },
-                {
-                    title: "Bayesian Collapse vs. Conformal Guarantee (0:30 – 0:55)",
-                    script: "When we evaluate unadjusted Bayesian Joint Credible Regions on the probability simplex, they suffer catastrophic geometric collapse, yielding only 1.4% empirical coverage—a 45-fold miscoverage deficit. SpotGuard formulates nonconformity via Total Variation geometry to guarantee exact 90% coverage.",
-                    highlight: "section-metrics",
-                    action: () => {
-                        document.getElementById('section-metrics').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                },
-                {
-                    title: "Real-Time Conformal Gatekeeping (0:55 – 1:25)",
-                    script: "In View 02, SpotGuard applies weighted conformal prediction. Notice the greyed-out spots along the invasive boundary: rather than outputting misleading point calls, SpotGuard deactivates spots where covariate shift undermines exchangeability, dynamically adapting as we sweep α.",
-                    highlight: "panel-b",
-                    action: () => {
-                        setAlpha(0.05);
-                        setTimeout(() => setAlpha(0.10), 1200);
-                        document.getElementById('panel-b').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                },
-                {
-                    title: "Barycentric Simplex & Clinical Triage (1:25 – 1:50)",
-                    script: "In the Diagnostic Inspector, we inspect Spot #842. While standard models call it TIL-positive at 8%, the 90% conformal region [2%–17%] straddles the 5% decision threshold. SpotGuard triggers a red SUPPRESS gate. But when we select a core spot, it immediately clears as CERTIFIED SAFE.",
-                    highlight: "panel-c",
-                    action: () => {
-                        selectSpot(25, 15, 842, getTissueData(25, 15));
-                        setTimeout(() => {
-                            selectSpot(23, 21, 989, getTissueData(23, 21));
-                        }, 2500);
-                        document.getElementById('panel-c').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                },
-                {
-                    title: "Benchmark Validation & Deployment (1:50 – 2:00)",
-                    script: "Across synthetic, cross-donor, and cross-platform Visium benchmarks, SpotGuard slashes triage error from 42.8% to 3.8%. The full Python engine and interactive interface are open-source and linked in our 2-page ML4H 2026 Spec Sheet.",
-                    highlight: "section-table",
-                    action: () => {
-                        document.getElementById('section-table').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            ];
-
-            let currentStep = 0;
-            let tourTimerInterval = null;
-            let tourSeconds = 0;
-            let isAutoPlaying = true;
-            let isTourActive = false;
-
-            window.toggleDemoTour = function() {
-                isTourActive = !isTourActive;
-                const dock = document.getElementById('tourDock');
-                const btn = document.getElementById('tourTriggerBtn');
-                
-                if (isTourActive) {
-                    dock.classList.remove('hidden');
-                    btn.classList.add('bg-sky-600', 'text-white');
-                    currentStep = 0;
-                    tourSeconds = 0;
-                    isAutoPlaying = true;
-                    startTourTimer();
-                    goToTourStep(0);
-                } else {
-                    dock.classList.add('hidden');
-                    btn.classList.remove('bg-sky-600', 'text-white');
-                    clearHighlights();
-                    stopTourTimer();
-                }
-            };
-
-            function clearHighlights() {
-                document.querySelectorAll('.med-card').forEach(el => el.classList.remove('tour-highlight'));
-            }
-
-            function goToTourStep(idx) {
-                clearHighlights();
-                currentStep = idx;
-                const step = tourSteps[idx];
-
-                document.getElementById('tourStepBadge').innerText = `PHASE ${idx + 1} OF 5`;
-                document.getElementById('tourTitle').innerText = step.title;
-                document.getElementById('tourScript').innerText = `"${step.script}"`;
-                
-                document.getElementById('tourPrevBtn').disabled = (idx === 0);
-                document.getElementById('tourNextBtn').innerText = (idx === tourSteps.length - 1) ? "COMPLETE RUN ✓" : "NEXT STEP →";
-
-                for (let i = 0; i < 5; i++) {
-                    const dot = document.getElementById(`dot-${i}`);
-                    if (dot) dot.className = (i === idx) ? "w-2.5 h-2.5 rounded-full bg-sky-600 shadow-sm" : "w-2.5 h-2.5 rounded-full bg-slate-300";
-                }
-
-                if (step.highlight) {
-                    const target = document.getElementById(step.highlight);
-                    if (target) target.classList.add('tour-highlight');
-                }
-
-                if (step.action) step.action();
-            }
-
-            window.nextTourStep = function() {
-                if (currentStep < tourSteps.length - 1) {
-                    goToTourStep(currentStep + 1);
-                } else {
-                    toggleDemoTour();
-                }
-            };
-
-            window.prevTourStep = function() {
-                if (currentStep > 0) {
-                    goToTourStep(currentStep - 1);
-                }
-            };
-
-            window.toggleAutoPlay = function() {
-                isAutoPlaying = !isAutoPlaying;
-                const btn = document.getElementById('tourPlayPauseBtn');
-                if (isAutoPlaying) {
-                    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">pause</span>';
-                } else {
-                    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">play_arrow</span>';
-                }
-            };
-
-            function startTourTimer() {
-                stopTourTimer();
-                tourTimerInterval = setInterval(() => {
-                    tourSeconds++;
-                    const mins = Math.floor(tourSeconds / 60);
-                    const secs = tourSeconds % 60;
-                    document.getElementById('tourTimer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs} / 2:00`;
-
-                    if (isAutoPlaying) {
-                        if (tourSeconds === 30) goToTourStep(1);
-                        else if (tourSeconds === 55) goToTourStep(2);
-                        else if (tourSeconds === 85) goToTourStep(3);
-                        else if (tourSeconds === 110) goToTourStep(4);
-                        else if (tourSeconds >= 125) {
-                            toggleDemoTour();
-                        }
-                    }
-                }, 1000);
-            }
-
-            function stopTourTimer() {
-                if (tourTimerInterval) {
-                    clearInterval(tourTimerInterval);
-                    tourTimerInterval = null;
-                }
-            }
 
             renderSpots();
             selectSpot(25, 15, 842, getTissueData(25, 15));
