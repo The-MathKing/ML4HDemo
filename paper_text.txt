@@ -5,9 +5,9 @@ Aryan Padarthi (aryan.padarthi@student.allenisd.org)
 Johnathan Luu (johnathan.luu@student.allenisd.org)
 Adhvait Reddy Bireddy (adhvait.bireddy@student.allenisd.org)
 Ethan Mingyi Ye (ethan.ye@student.allenisd.org)
+
 Affiliation: Allen High School
 Email: {aryan.padarthi, johnathan.luu, adhvait.bireddy, ethan.ye}@student.allenisd.org
-
 Venue: Machine Learning for Health (ML4H) 2026 - Demo Track
 
 
@@ -66,26 +66,26 @@ SpotGuard pairs a Python calibration backend with an interactive Canvas frontend
 ================================================================================
 
 Controlled Shift Benchmark Evaluation.
-We evaluate SpotGuard on a simulation benchmark (G = 300 genes, K = 5 cell types, N_cells = 1,000, N_spots = 500) with known ground-truth y* across three shift regimes.
+We evaluate SpotGuard on a simulation benchmark (G = 300 genes, K = 5 cell types, N_cells = 1,000, N_spots = 500) with known ground-truth y* across three shift regimes (Table 1).
 
 Table 1: Empirical Coverage, Efficiency, & Gatekeeping at Nominal 90% (alpha = 0.10).
-V denotes mean TV ball radius q_hat_alpha. Retained MAE is mean TV error on unmasked spots. Mask% is the fraction of gated spots.
+V denotes mean TV ball radius q_hat_alpha on Delta^{K-1}. Retained MAE is mean TV error on unmasked spots. Mask% is the fraction of gated spots.
 
-------------------------------------------------------------------------------------------------------------------------------------
-Regime             Method                  Coverage [95% CI]        V        Mask%    Retained MAE   Safety Behavior
-------------------------------------------------------------------------------------------------------------------------------------
-In-Distribution    Bayesian Joint CI       1.0% [0.2%, 2.0%]        0.012    --       0.118          Geometric Hypercube Collapse
-                   Bayesian Marginal CI    85.4% [82.1%, 88.6%]     0.041    --       0.118          Unadjusted Marginals
-                   SpotGuard (Ours)        92.4% [90.2%, 94.6%]     0.038    7.2%     0.034          Valid Simplex Nonconformity
+-------------------------------------------------------------------------------------------------------------------------
+Regime                 Method                  Coverage [95% CI]        V        Mask%    Retained MAE
+-------------------------------------------------------------------------------------------------------------------------
+In-Dist.               Bayesian Joint CI       1.0% [0.2%, 2.0%]        0.012    --       0.118
+                       Bayesian Marginal CI    85.4% [82.1%, 88.6%]     0.041    --       0.118
+                       SpotGuard (Ours)        92.4% [90.2%, 94.6%]     0.038    7.2%     0.034
 
-Cross-Donor Shift  Bayesian Joint CI       2.0% [0.8%, 3.4%]        0.015    --       0.124          Geometric Hypercube Collapse
-                   Unweighted Conformal    89.8% [87.4%, 92.4%]     0.054    10.4%    0.045          Unweighted CP Baseline
-                   SpotGuard (Ours)        89.8% [87.4%, 92.4%]     0.058    11.0%    0.042          No-Harm under Mild Shift
+Cross-Donor            Bayesian Joint CI       2.0% [0.8%, 3.4%]        0.015    --       0.124
+                       Unweighted Conformal    89.8% [87.4%, 92.4%]     0.054    10.4%    0.045
+                       SpotGuard (Ours)        89.8% [87.4%, 92.4%]     0.058    11.0%    0.042
 
-Cross-Platform     Bayesian Joint CI       1.4% [0.4%, 2.6%]        0.018    --       0.142          Severe Overconfidence Collapse
-(10x to Slide-seq) Unweighted Conformal    84.6% [81.4%, 87.8%]     0.062    15.6%    0.061          5.4% Coverage Deficit
-                   SpotGuard (Ours)        89.4% [86.8%, 92.1%]     0.071    18.4%    0.048          +4.8% Coverage Recovered (-66.2% Error)
-------------------------------------------------------------------------------------------------------------------------------------
+Cross-Plat.            Bayesian Joint CI       1.4% [0.4%, 2.6%]        0.018    --       0.142
+(10x -> Slide-seq)     Unweighted Conformal    84.6% [81.4%, 87.8%]     0.062    15.6%    0.061
+                       SpotGuard (Ours)        89.4% [86.8%, 92.1%]     0.071    18.4%    0.048
+-------------------------------------------------------------------------------------------------------------------------
 
 Shift Performance & Gatekeeping Accuracy.
 Under cross-platform shift, density-ratio weighting prevents a 4.8% coverage collapse (89.4% vs. 84.6% unweighted), achieving an Area Under the Risk-Coverage curve (AURC) of 0.138. Under mild cross-donor shift, SpotGuard preserves nominal coverage (89.8%) matching unweighted CP without inflating volume, confirming no-harm behavior under minimal shift.
@@ -100,8 +100,8 @@ The Bayesian Joint CI (1.0%–2.0%) fails because taking an unadjusted Cartesian
 Clinical Utility & Access.
 Scalar TV radius q_hat_alpha provides actionable gatekeeping for pathologists over intractable high-dimensional posterior tensors.
 - Web App: https://the-mathking.github.io/ML4HDemo/
-- Demo Video: https://youtu.be/u3NUaWljdgo
-- Source Code: https://github.com/The-MathKing/ML4HDemo
+- Video Demo: https://youtu.be/u3NUaWljdgo
+- Code Repository: https://github.com/The-MathKing/ML4HDemo
 
 Limitations & Scope.
 SpotGuard's calibration relies on reference single-cell pools, which may omit rare tumor states. Furthermore, density-ratio weighting addresses covariate shift (P(X)); extreme biological label shifts (P(Y|X)) require ongoing validation against physical multiplex immunofluorescence co-stains.
@@ -117,4 +117,3 @@ REFERENCES
 5. Vivien Marx. Method of the year: spatially resolved transcriptomics. Nature Methods, 18(1):9–14, 2021.
 6. Anjali Rao, Dalia Barkley, Oscar Franzen, and Itai Yanai. Exploring tissue architecture using spatial transcriptomics. Nature, 596(7871):211–220, 2021.
 7. Ryan J. Tibshirani, Rina Foygel Barber, Emmanuel Candes, and Aaditya Ramdas. Conformal prediction under covariate shift. Advances in Neural Information Processing Systems, 32, 2019.
-8. Marc Elosua-Bayes, Paula Nieto, Elisabetta Mereu, Ivo Gut, and Holger Heyn. SPOTlight: seeded NMF regression to deconvolute spatial transcriptomics data with single-cell subtags. Nucleic Acids Research, 49(9):e52–e52, 2021.
