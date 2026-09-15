@@ -46,7 +46,7 @@
 \maketitle
 
 \begin{abstract}
-Spatial transcriptomics (ST) deconvolution models (e.g., \texttt{cell2location}, \texttt{RCTD}) infer cell-type proportions across tissue spots, but unadjusted Bayesian posterior intervals suffer severe miscalibration under atlas-to-query distribution shifts. We present \textbf{SpotGuard}, an operational, interactive conformal gatekeeping system for ST deconvolution. SpotGuard formulates nonconformity via Total Variation (TV) geometry on the simplex $\simplex$ and adapts to atlas shift via density-ratio weighted conformal prediction. Integrated into a sub-16ms interactive workstation with live miscoverage ($\alpha$) slider controls, SpotGuard dynamically prunes uncalibrated spots—recovering 89.4\% coverage under severe cross-platform shift (vs.\ 84.6\% unweighted, while Bayesian joint intervals collapse to 1.4\%) and reducing compositional TV error on retained tissue by 66.2\% ($\text{AURC} = 0.138$).
+Spatial transcriptomics (ST) deconvolution models (such as \texttt{cell2location} and \texttt{RCTD}) predict cell-type proportions across spots on a tissue. We propose \textbf{SpotGuard}, an operational, interactive conformal gatekeeping system for ST deconvolution. The SpotGuard nonconformity formulation relies on the Total Variation (TV) geometry on the simplex $\simplex$. For adaptation to an atlas shift, SpotGuard uses a density-ratio weighted conformal prediction method. We implement SpotGuard within a sub-16ms interactive workstation, equipped with live miscoverage ($\alpha$) slider controls, which automatically prunes uncalibrated spots, recovering 89.4\% coverage in response to a severe atlas shift (vs.\ 84.6\% unweighted, while Bayesian joint intervals collapse to 1.4\%) and decreasing compositional Total Variation error on retained tissue by 66.2\% ($\text{AURC} = 0.138$).
 \end{abstract}
 
 \begin{keywords}
@@ -57,13 +57,13 @@ Spatial transcriptomics, deconvolution, conformal prediction, distribution shift
 \label{sec:intro}
 
 \paragraph{Clinical Problem \& Importance.}
-Spatial transcriptomics (ST) profiles gene expression across intact biopsies~\citep{marx2021method, rao2021exploring}. Because sequencing captures multi-cellular mixtures ($55\,\mu\text{m}$ spots, 5--30 cells), computational deconvolution models—such as \texttt{cell2location}~\citep{kleshchevnikov2022cell2location} and \texttt{RCTD}~\citep{cable2021robust}—infer cell-type proportion vectors $\hat{y} \in \simplex$. In oncology, these maps guide vital decisions: quantifying cytotoxic CD8$^+$ T-cell infiltration, detecting tertiary lymphoid structures, and defining surgical margins.
+Spatial transcriptomics profiles gene expression across intact biopsies~\citep{marx2021method, rao2021exploring}. Since sequencing measures multi-cellular mixtures ($55\,\mu\text{m}$ spots containing 5 to 30 cells), computational deconvolution models infer cell-type proportion vectors $\hat{y} \in \simplex$. In oncology, deconvolution maps help critical decisions: measuring cytotoxic CD8$^+$ T-cell infiltration, identifying tertiary lymphoid structures, and describing surgical margins.
 
 \paragraph{Failure Mode of Current Approaches.}
-Deconvolution models rely on reference scRNA-seq atlases. When atlases and patient tissues diverge due to platform (10x Chromium vs.\ Slide-seq), preservation (FFPE vs.\ fresh frozen), or demographics, exchangeability fails. Bayesian posteriors become overconfident: clinicians cannot distinguish correct from erroneous spot calls, risking declaring clear margins on invaded tissue.
+Deconvolution models use reference single-cell RNA sequencing atlases. If atlases and patient tissues do not match due to platform differences (such as 10x Chromium vs.\ Slide-seq), tissue preservation (FFPE vs.\ fresh frozen), or demographics, exchangeability fails. Bayesian posteriors become overconfident: physicians have no way to tell between good and bad spot calls, potentially proclaiming clean margins on invaded tissue.
 
 \paragraph{Intended Use \& Target Population.}
-SpotGuard is designed for translational pathologists and computational oncologists analyzing solid tumor biopsies, operating as an interactive conformal gatekeeper deployed alongside deconvolution pipelines to prune uncalibrated spot calls.
+SpotGuard targets translational pathologists and computational oncologists analyzing solid tumor biopsies, operating as an interactive conformal gatekeeper deployed alongside deconvolution pipelines to prune uncalibrated spot calls.
 
 \begin{figure}[t]
 \centering
@@ -90,25 +90,25 @@ SpotGuard is designed for translational pathologists and computational oncologis
 \label{sec:method}
 
 \paragraph{Compositional Nonconformity on the Simplex.}
-Cell proportions inhabit the closed simplex $\simplex = \{ v \in \mathbb{R}_+^K : \sum_{k=1}^K v_k = 1 \}$. Base predictions $\hat{y}$ are obtained via Dirichlet-multinomial MAP estimation~\citep{kleshchevnikov2022cell2location}. Because sparse proportions yield boundary log singularities, SpotGuard defines nonconformity via Total Variation (TV) distance: $\mathcal{S}_{\text{TV}}(x, y) = \frac{1}{2} \|y - \hat{y}\|_1 = \frac{1}{2} \sum_{k=1}^K |y_k - \hat{y}_k| \in [0, 1]$, defined everywhere on the closed simplex.
+Cell proportions live on the closed unit simplex $\simplex = \{ v \in \mathbb{R}_+^K : \sum_{k=1}^K v_k = 1 \}$ with proportions summing to one. SpotGuard computes base predictions through the maximum a posteriori solution for Dirichlet-multinomial distributions~\citep{kleshchevnikov2022cell2location}. In practice, we find that boundary log singularities make sparse proportions ill-defined, so we define nonconformity as the Total Variation (TV) distance: $\mathcal{S}_{\text{TV}}(x, y) = \frac{1}{2} \|y - \hat{y}\|_1 = \frac{1}{2} \sum_{k=1}^K |y_k - \hat{y}_k| \in [0, 1]$, which is well-defined everywhere on the closed simplex.
 
 \paragraph{Pseudo-Spot Calibration Procedure.}
-Because physical single-cell truth is unobservable in tissue spots, SpotGuard synthesizes $M=1{,}000$ calibration pseudo-spots $\mathcal{D}_{\text{cal}} = \{(x_i^{\text{syn}}, y_i^{\text{syn}})\}_{i=1}^M$ from reference single cells by sampling mixtures $y_i^{\text{syn}} \sim \mathrm{Dirichlet}(\beta)$, aggregating counts $N_i \sim \mathrm{Poisson}(\lambda)$, injecting ambient contamination $\rho \sim \mathrm{Beta}(a, b)$, and matching empirical library depth.
+Since real tissue spots do not have available physical single-cell ground truth, SpotGuard generates $M=1{,}000$ calibration pseudo-spots $\mathcal{D}_{\text{cal}} = \{(x_i^{\text{syn}}, y_i^{\text{syn}})\}_{i=1}^M$ from reference single cells by sampling over Dirichlet cell-type mixtures $y_i^{\text{syn}} \sim \mathrm{Dirichlet}(\beta)$, aggregating Poisson transcript counts $N_i \sim \mathrm{Poisson}(\lambda)$, adding ambient contamination $\rho \sim \mathrm{Beta}(a, b)$, and matching observed sequencing library depth.
 
 \paragraph{Weighted Conformal Prediction under Covariate Shift.}
-To correct for atlas-to-query distribution shifts ($P_{\text{ref}}(X) \neq P_{\text{query}}(X)$), SpotGuard trains a regularized discriminator $d_\phi(x)$ on PCA spot embeddings to compute density-ratio weights $w(x) = \frac{d_\phi(x)}{1 - d_\phi(x)} \frac{M_{\text{ref}}}{M_{\text{query}}}$~\citep{tibshirani2019conformal, barber2023conformal}. We enforce a 5-fold cross-validated Realism Gate ($0.60 \le \text{AUC} \le 0.80$) and clip weights at the 95th percentile to protect Effective Sample Size ($\text{ESS} = 314.5$). For query spot $x_{n+1}$, the weighted $(1-\alpha)$ quantile $\hat{q}_\alpha(x_{n+1})$ defines an approximately valid simplex region~\citep{angelopoulos2021gentle}:
+To adjust for covariate shift between atlas and query data ($P_{\text{ref}}(X) \neq P_{\text{query}}(X)$), SpotGuard learns a regularized discriminator $d_\phi(x)$ on PCA spot embeddings to predict density-ratio weights $w(x) = \frac{d_\phi(x)}{1 - d_\phi(x)} \frac{M_{\text{ref}}}{M_{\text{query}}}$~\citep{tibshirani2019conformal, barber2023conformal}. We require a 5-fold cross-validated Realism Gate ($0.60 \le \text{AUC} \le 0.80$) and clip weights at the 95th percentile to safeguard the Effective Sample Size ($\text{ESS} = 314.5$). Each query spot receives a weighted quantile defining a valid simplex prediction ball~\citep{angelopoulos2021gentle}:
 \begin{equation}
 \vspace{-3pt}
     C_\alpha(x_{n+1}) = \left\{ y \in \simplex : \mathcal{S}_{\text{TV}}(x_{n+1}, y) \le \hat{q}_\alpha(x_{n+1}) \right\}.
 \vspace{-3pt}
 \end{equation}
-Under joint distribution shift, the worst-case coverage gap is bounded by the total variation distance $|\mathbb{P}_{(X,Y)\sim Q}(y \in C_\alpha(X)) - (1-\alpha)| \le d_{\mathrm{TV}}(P_{X,Y}, Q_{X,Y})$~\citep{barber2023conformal}.
+Under joint distribution shift, worst-case coverage error is strictly bounded by the total variation distance between reference and query distributions: $|\mathbb{P}_{(X,Y)\sim Q}(y \in C_\alpha(X)) - (1-\alpha)| \le d_{\mathrm{TV}}(P_{X,Y}, Q_{X,Y})$~\citep{barber2023conformal}.
 
 \paragraph{Selective Gatekeeping Mechanism.}
-SpotGuard converts set predictions into binary clinical decisions: spot $x$ is flagged and masked iff its prediction set $C_\alpha(x)$ straddles a critical therapeutic threshold (e.g., $CD8^+ \ge 5\%$, or $\hat{q}_\alpha(x) > \tau_{\text{safe}}$).
+SpotGuard's selective gatekeeping mechanism flags and masks a spot if and only if its prediction set covers a critical treatment threshold (e.g., $CD8^+ \ge 5\%$) or surpasses the safe uncertainty radius $\tau_{\text{safe}}$.
 
 \paragraph{System Architecture \& Deployment.}
-SpotGuard pairs a Python calibration backend with an interactive Canvas frontend on GitHub Pages, achieving sub-16ms ($>60\,\text{fps}$) recomputation during live $\alpha$ manipulation.
+We implement SpotGuard using a Python calibration backend and interactive Canvas frontend on GitHub Pages providing sub-16ms ($>60\,\text{fps}$) recomputation during live $\alpha$ tuning.
 
 \section{Results \& Gatekeeping Evaluation}
 \label{sec:results}
@@ -119,7 +119,7 @@ We evaluate SpotGuard on a simulation benchmark ($G=300$ genes, $K=5$ cell types
 \begin{table}[t]
 \centering
 \small
-\renewcommand{\arraystretch}{1.45}
+\renewcommand{\arraystretch}{1.35}
 \setlength{\tabcolsep}{3.2pt}
 \caption{\textbf{Empirical Coverage, Efficiency, \& Gatekeeping at Nominal 90\% ($\alpha = 0.10$).} $\mathcal{V}$ denotes mean TV ball radius $\hat{q}_\alpha$ on $\simplex$. Retained MAE is mean TV error on unmasked spots. Mask\% is the fraction of gated spots.}
 \label{tab:benchmarks}
@@ -146,21 +146,19 @@ We evaluate SpotGuard on a simulation benchmark ($G=300$ genes, $K=5$ cell types
 \end{table}
 
 \paragraph{Shift Performance \& Gatekeeping Accuracy.}
-Under cross-platform shift, density-ratio weighting prevents a 4.8\% coverage collapse ($89.4\%$ vs.\ $84.6\%$ unweighted), achieving an Area Under the Risk-Coverage curve ($\text{AURC}$) of 0.138. Under mild cross-donor shift, SpotGuard preserves nominal coverage (89.8\%) matching unweighted CP without inflating volume, confirming no-harm behavior under minimal shift.
-Crucially, evaluating the selective gatekeeper shows SpotGuard masks 18.4\% of spots with 91.3\% precision and 88.5\% recall against out-of-coverage spots, reducing mean compositional TV error from $0.142$ to $0.048$ on retained tissue (a 66.2\% error reduction).
-The Bayesian Joint CI ($1.0\%$--$2.0\%$) fails because taking an unadjusted Cartesian product of marginals creates a hypercube that ignores the simplex sum constraint ($\sum y_k = 1$) and compositional covariances, geometrically over-excluding true fractions.
+Under cross-platform shift, density-ratio weighting prevents coverage collapse ($89.4\%$ vs.\ $84.6\%$ unweighted, $\text{AURC} = 0.138$). In mild cross-donor shift, SpotGuard retains nominal coverage ($89.8\%$) compared to unweighted conformal prediction without adding unnecessary bulk, confirming no-harm behavior under minimal shift. Critically, we show that the selective gatekeeper allows us to mask $18.4\%$ of spots with $91.3\%$ precision and $88.5\%$ recall against spots deemed out-of-coverage, resulting in a $66.2\%$ error reduction in mean compositional Total Variation error on retained tissue (from $0.142$ to $0.048$). The Bayesian Joint Confidence Interval reduces to $1.0\%$--$2.0\%$, as an unadjusted Cartesian product of marginals makes the Bayesian Joint Confidence Interval a hypercube, failing to account for the simplex sum constraint and ignoring compositional covariances, which leads to geometric over-exclusion of the true fractions.
 
 \section{Discussion, Limitations, \& Access}
 \label{sec:discussion}
 
 \paragraph{Clinical Utility \& Access.}
-Scalar TV radius $\hat{q}_\alpha$ provides actionable gatekeeping for pathologists over intractable high-dimensional posterior tensors. 
+A single scalar uncertainty radius can provide clinically useful gatekeeping information for pathologists on intractable high-dimensional posterior distributions. Intractable covariates motivate tools that reduce them to scalars.
 \textbf{Web App}: \url{https://the-mathking.github.io/ML4HDemo/} $\bullet$ 
 \textbf{Video}: \url{https://youtu.be/u3NUaWljdgo} $\bullet$ 
 \textbf{Code}: \url{https://github.com/The-MathKing/ML4HDemo}
 
 \paragraph{Limitations \& Scope.}
-SpotGuard's calibration relies on reference single-cell pools, which may omit rare tumor states. Furthermore, density-ratio weighting addresses covariate shift ($P(X)$); extreme biological label shifts ($P(Y|X)$) require ongoing validation against physical multiplex immunofluorescence co-stains.
+SpotGuard uses reference single-cell pools to define this uncertainty region, which may not contain all possible rare tumor states. While density-ratio weighting addresses covariate shift in spot gene expression ($P(X)$), extreme biological label shifts ($P(Y|X)$) require ongoing validation against physical multiplex immunofluorescence co-stains.
 
 \newpage
 \renewcommand{\bibfont}{\normalsize}
