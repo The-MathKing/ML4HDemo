@@ -91,8 +91,8 @@ We evaluate SpotGuard on a controlled simulation benchmark ($G=300$ genes, $K=5$
 
 \begin{table}[t]
 \centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
+\small
+\setlength{\tabcolsep}{4pt}
 \caption{\textbf{Empirical Coverage \& Efficiency at 90\% Nominal ($\alpha = 0.10$).} Simplex Vol. ($\mathcal{V}$) denotes the mean TV ball radius $\hat{q}_\alpha$ on $\simplex$. Bayesian Joint CI is an unadjusted product of marginal intervals ($K$-box).}
 \label{tab:benchmarks}
 \resizebox{\columnwidth}{!}{%
@@ -122,14 +122,24 @@ The Bayesian Joint CI is an unadjusted product of marginal posterior intervals, 
 \paragraph{Planned Clinical Validation.}
 We are validating SpotGuard on 10x Visium breast carcinoma sections to test whether conformal gatekeeping prunes artifactual CD8$^+$ margin calls against orthogonal multiplex immunofluorescence co-staining.
 
-\section{Discussion \& System Access}
+\section{Discussion \& Limitations}
 \label{sec:discussion}
 
 \paragraph{Development Challenges \& Limitations.}
 Key challenges addressed include: (1) \textit{Boundary Singularities}: Euclidean and log-ratio losses distort predictions near simplex faces, resolved by Total Variation geometry; (2) \textit{Density Ratios}: PCA projections stabilize discriminator training; (3) \textit{Residual Shift}: Sim-to-real capture variations introduce mild concept shift, rendering coverage approximately valid.
 
-\paragraph{System Access \& Future Roadmap.}
-Scalar TV bounds and binary ambiguity masks provide actionable clinical clarity over high-dimensional credible tensors. Future work extends SpotGuard to subcellular platforms (10x Xenium, CosMx). \textbf{App}: \url{https://the-mathking.github.io/ML4HDemo/} \quad $\bullet$ \textbf{Video}: \url{https://youtu.be/spotguard-demo} \quad $\bullet$ \textbf{Code}: \url{https://github.com/The-MathKing/ML4HDemo}
+\paragraph{Clinical Rationale \& Roadmap.}
+Scalar TV bounds and binary ambiguity masks provide actionable clinical clarity over high-dimensional credible tensors. Future work extends SpotGuard to subcellular platforms (10x Xenium, CosMx).
+
+\section{Demo Video \& System Access}
+\label{sec:demo_info}
+
+\noindent SpotGuard is publicly available with live interactive demonstrations and full source code:
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
+    \item \textbf{Interactive Web App}: \url{https://the-mathking.github.io/ML4HDemo/}
+    \item \textbf{2-Minute Demo Video}: \url{https://youtu.be/spotguard-demo}
+    \item \textbf{Open-Source Code}: \url{https://github.com/The-MathKing/ML4HDemo}
+\end{itemize}
 
 \newpage
 \bibliography{ref}
