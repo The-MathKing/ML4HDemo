@@ -20,10 +20,10 @@
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,calc}
 
-\setlength{\textfloatsep}{3pt plus 1pt minus 1pt}
-\setlength{\floatsep}{3pt plus 1pt minus 1pt}
-\setlength{\intextsep}{3pt plus 1pt minus 1pt}
-\setlength{\abovecaptionskip}{2pt}
+\setlength{\textfloatsep}{2pt plus 1pt minus 1pt}
+\setlength{\floatsep}{2pt plus 1pt minus 1pt}
+\setlength{\intextsep}{2pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{1pt}
 \setlength{\belowcaptionskip}{1pt}
 
 \newcommand{\simplex}{\Delta^{K-1}}
@@ -57,7 +57,7 @@ Spatial transcriptomics, deconvolution, conformal prediction, distribution shift
 Spatial transcriptomics (ST) enables spatial gene expression profiling across intact histological tumor biopsies~\citep{marx2021method, rao2021exploring}. Because sequencing-based ST captures multi-cellular mixtures ($55\,\mu\text{m}$ spots, 5--30 cells), computational deconvolution methods—such as \texttt{cell2location}~\citep{kleshchevnikov2022cell2location}, \texttt{RCTD}~\citep{cable2021robust}, and \texttt{SPOTlight}~\citep{elosua2021spotlight}—infer cell-type proportion vectors $\hat{y} \in \simplex$. In clinical oncology, these deconvolution maps guide critical decisions, including quantifying cytotoxic CD8$^+$ T-cell infiltration, detecting tertiary lymphoid structures (TLS), and delineating surgical resection margins.
 
 \paragraph{Failure Mode of Current Approaches.}
-Deconvolution models rely on reference scRNA-seq atlases. When reference atlases and patient tissues diverge due to sequencing platform (e.g., 10x Chromium vs.\ Slide-seq), tissue preservation (FFPE vs.\ fresh frozen), or patient demographics, exchangeability fails. Standard Bayesian posteriors become severely overconfident: a clinician cannot distinguish a spot where the model is confident and correct from one where it is confident and wrong. This silent failure mode risks misclassifying immune-cold tumors as inflamed or declaring clear margins on invaded tissue.
+Deconvolution models rely on reference scRNA-seq atlases. When reference atlases and patient tissues diverge due to sequencing platform (e.g., 10x Chromium vs.\ Slide-seq), tissue preservation (FFPE vs.\ fresh frozen), or patient demographics, exchangeability fails. Standard Bayesian posteriors become severely overconfident: clinicians cannot distinguish correct from erroneous spot inferences, risking misclassifying immune-cold tumors as inflamed or declaring clear margins on invaded tissue.
 
 \paragraph{Intended Use \& Target Population.}
 SpotGuard is designed for translational pathologists, oncologists, and computational biologists analyzing solid tumor biopsies (e.g., breast carcinoma, melanoma, colorectal cancer). SpotGuard operates as an interactive conformal gatekeeper deployed alongside deconvolution pipelines to prevent uncalibrated predictions from entering clinical workflows.
@@ -72,7 +72,7 @@ Cell proportions inhabit the closed simplex $\simplex = \{ v \in \mathbb{R}_+^K 
 Because single-cell ground truth is unobservable in physical spatial spots, SpotGuard synthesizes $M=1{,}000$ calibration pseudo-spots $\mathcal{D}_{\text{cal}} = \{(x_i^{\text{syn}}, y_i^{\text{syn}})\}_{i=1}^M$ from reference single cells by drawing mixtures $y_i^{\text{syn}} \sim \mathrm{Dirichlet}(\beta)$, aggregating counts $N_i \sim \mathrm{Poisson}(\lambda)$, injecting ambient RNA $\rho \sim \mathrm{Beta}(a, b)$, and matching empirical spatial library sizes.
 
 \paragraph{Weighted Conformal Prediction under Covariate Shift.}
-To correct for atlas-to-query distribution shifts ($P_{\text{ref}}(X) \neq P_{\text{query}}(X)$), SpotGuard trains a regularized logistic discriminator $d_\phi(x)$ on spot gene embeddings to compute density-ratio weights $w(x) = \frac{d_\phi(x)}{1 - d_\phi(x)} \frac{M_{\text{ref}}}{M_{\text{query}}}$~\citep{tibshirani2019conformal, barber2023conformal}. We evaluate the Discriminator Realism Gate to ensure $0.60 \le \text{AUC}(d_\phi) \le 0.80$ and clip weights at the 95th percentile to protect Kish's Effective Sample Size ($\text{ESS} = \frac{(\sum w)^2}{\sum w^2} = 314.5$). For query spot $x_{n+1}$, the weighted $(1-\alpha)$ quantile $\hat{q}_\alpha(x_{n+1})$ defines an approximately valid prediction set~\citep{angelopoulos2021gentle}:
+To correct for atlas-to-query distribution shifts ($P_{\text{ref}}(X) \neq P_{\text{query}}(X)$), SpotGuard trains a regularized logistic discriminator $d_\phi(x)$ on spot embeddings to compute density-ratio weights $w(x) = \frac{d_\phi(x)}{1 - d_\phi(x)} \frac{M_{\text{ref}}}{M_{\text{query}}}$~\citep{tibshirani2019conformal, barber2023conformal}. We enforce a Realism Gate ($0.60 \le \text{AUC} \le 0.80$) and clip weights at the 95th percentile to protect Effective Sample Size ($\text{ESS} = \frac{(\sum w)^2}{\sum w^2} = 314.5$). For query spot $x_{n+1}$, the weighted $(1-\alpha)$ quantile $\hat{q}_\alpha(x_{n+1})$ defines an approximately valid prediction set~\citep{angelopoulos2021gentle}:
 \begin{equation}
 \vspace{-2pt}
     C_\alpha(x_{n+1}) = \left\{ y \in \simplex : \mathcal{S}_{\text{TV}}(x_{n+1}, y) \le \hat{q}_\alpha(x_{n+1}) \right\}.
@@ -80,8 +80,8 @@ To correct for atlas-to-query distribution shifts ($P_{\text{ref}}(X) \neq P_{\t
 \end{equation}
 SpotGuard gates spots via decision ambiguity: masking spot $x$ iff $C_\alpha(x)$ straddles a clinical threshold (e.g., CD8$^+$ infiltration $> 5\%$).
 
-\paragraph{System Architecture \& Deployment Pipeline.}
-SpotGuard couples a Python engine with a zero-dependency interactive Canvas frontend hosted via GitHub Pages, achieving sub-16ms ($>60\,\text{fps}$) recomputation during slider interaction.
+\paragraph{System Architecture \& Deployment.}
+SpotGuard couples a Python engine with a zero-dependency interactive Canvas frontend on GitHub Pages, achieving sub-16ms ($>60\,\text{fps}$) recomputation during slider interaction.
 
 \section{Results}
 \label{sec:results}
@@ -91,8 +91,8 @@ We evaluate SpotGuard on a controlled simulation benchmark ($G=300$ genes, $K=5$
 
 \begin{table}[t]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
 \caption{\textbf{Empirical Coverage \& Efficiency at 90\% Nominal ($\alpha = 0.10$).} Simplex Vol. ($\mathcal{V}$) denotes the mean TV ball radius $\hat{q}_\alpha$ on $\simplex$. Bayesian Joint CI is an unadjusted product of marginal intervals ($K$-box).}
 \label{tab:benchmarks}
 \resizebox{\columnwidth}{!}{%
@@ -117,31 +117,19 @@ We evaluate SpotGuard on a controlled simulation benchmark ($G=300$ genes, $K=5$
 \end{table}
 
 \paragraph{Baseline Analysis \& Shift Performance.}
-The Bayesian Joint CI is an unadjusted product of marginal posterior intervals, which collapses geometrically on $\simplex$ for moderate $K$, while marginal CIs achieve 85.4\% coverage. Under mild cross-donor shift, weighting matches unweighted coverage (89.8\%) at a slight efficiency cost ($\mathcal{V}=0.058$ vs.\ $0.054$). Under cross-platform shift, SpotGuard prevents a 5.2\% coverage drop ($89.4\%$ vs.\ $84.6\%$), achieving an AURC of 0.138.
+The Bayesian Joint CI is an unadjusted product of marginal posterior intervals, collapsing geometrically on $\simplex$ for moderate $K$, while marginal CIs achieve 85.4\% coverage. Under mild cross-donor shift, weighting matches unweighted coverage (89.8\%) at a slight efficiency cost ($\mathcal{V}=0.058$ vs.\ $0.054$). Under cross-platform shift, SpotGuard prevents a 5.2\% coverage drop ($89.4\%$ vs.\ $84.6\%$), achieving an AURC of 0.138.
 
 \paragraph{Planned Clinical Validation.}
 We are validating SpotGuard on 10x Visium breast carcinoma sections to test whether conformal gatekeeping prunes artifactual CD8$^+$ margin calls against orthogonal multiplex immunofluorescence co-staining.
 
-\section{Discussion \& Limitations}
+\section{Discussion \& System Access}
 \label{sec:discussion}
 
-\paragraph{Development Challenges \& Limitations.}
-Key challenges addressed include: (1) \textit{Boundary Singularities}: Euclidean and log-ratio losses distort predictions near simplex faces, resolved by Total Variation geometry; (2) \textit{Density Ratios}: PCA projections stabilize discriminator training; (3) \textit{Residual Shift}: Sim-to-real capture variations introduce mild concept shift, rendering coverage approximately valid.
+\paragraph{Challenges, Rationale, \& Access.}
+Key engineering challenges addressed include simplex boundary singularities (resolved by TV geometry), discriminator variance (resolved by PCA projections), and sim-to-real capture variations (rendering coverage approximately valid). Scalar TV bounds provide actionable clinical clarity over high-dimensional credible tensors. \textbf{App}: \url{https://the-mathking.github.io/ML4HDemo/} $\bullet$ \textbf{Video}: \url{https://youtu.be/spotguard-demo} $\bullet$ \textbf{Code}: \url{https://github.com/The-MathKing/ML4HDemo}
 
-\paragraph{Clinical Rationale \& Roadmap.}
-Scalar TV bounds and binary ambiguity masks provide actionable clinical clarity over high-dimensional credible tensors. Future work extends SpotGuard to subcellular platforms (10x Xenium, CosMx).
-
-\section{Demo Video \& System Access}
-\label{sec:demo_info}
-
-\noindent SpotGuard is publicly available with live interactive demonstrations and full source code:
-\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
-    \item \textbf{Interactive Web App}: \url{https://the-mathking.github.io/ML4HDemo/}
-    \item \textbf{2-Minute Demo Video}: \url{https://youtu.be/spotguard-demo}
-    \item \textbf{Open-Source Code}: \url{https://github.com/The-MathKing/ML4HDemo}
-\end{itemize}
-
-\newpage
+\renewcommand{\bibfont}{\scriptsize}
+\setlength{\bibsep}{0pt plus 0.2ex}
 \bibliography{ref}
 
 \end{document}
