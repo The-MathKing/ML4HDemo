@@ -58,12 +58,19 @@
             border: 1.5px solid #CBD5E1;
             border-radius: 18px;
             box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.03);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .apple-card:hover {
             box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
             border-color: #94A3B8;
+        }
+
+        .tour-highlight {
+            border-color: #0284C7 !important;
+            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.25), 0 12px 36px rgba(2, 132, 199, 0.15) !important;
+            transform: scale(1.01);
+            z-index: 30;
         }
 
         .magma-scale {
@@ -111,23 +118,75 @@
             </div>
 
             <div class="flex items-center gap-2.5">
-                <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-[12px] font-bold mr-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-                    ML4H 2026 DEMO TRACK
-                </span>
+                <!-- 2-Minute Demo Guided Tour Button -->
+                <button onclick="toggleDemoTour()" id="tourTriggerBtn" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-bold shadow-md transition">
+                    <span class="material-symbols-outlined text-[16px] text-amber-400">play_circle</span>
+                    <span>2-Min Demo Walkthrough</span>
+                </button>
 
-                <a href="main.pdf" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-[13px] font-semibold transition border border-slate-300">
+                <a href="main.pdf" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-[13px] font-semibold transition border border-slate-300">
                     <span class="material-symbols-outlined text-[16px] text-slate-700">picture_as_pdf</span>
                     <span>Spec Sheet (2P)</span>
                 </a>
 
-                <a href="https://github.com/The-MathKing/ML4HDemo" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-[13px] font-bold shadow-sm transition">
+                <a href="https://github.com/The-MathKing/ML4HDemo" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-[13px] font-bold shadow-sm transition">
                     <span class="material-symbols-outlined text-[16px]">code</span>
-                    <span>GitHub Code</span>
+                    <span>GitHub</span>
                 </a>
             </div>
         </div>
     </header>
+
+    <!-- FLOATING 2-MINUTE WALKTHROUGH TELEPROMPTER / CONTROLLER DOCK -->
+    <div id="tourDock" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-3xl bg-white/95 backdrop-blur-xl border-2 border-sky-600 rounded-2xl shadow-2xl p-4 transition-all hidden">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-sky-600 text-white font-mono font-bold text-[11px]" id="tourStepBadge">
+                    STEP 1 OF 5
+                </span>
+                <span class="font-bold text-[13.5px] text-slate-900" id="tourTitle">
+                    The Clinical Failure Mode (0:00 – 0:30)
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="font-mono text-[12px] font-bold text-sky-700" id="tourTimer">0:00 / 2:00</span>
+                <button onclick="toggleAutoPlay()" id="tourPlayPauseBtn" class="p-1 rounded-full hover:bg-slate-100 text-slate-700" title="Auto-advance Tour">
+                    <span class="material-symbols-outlined text-[20px]">pause</span>
+                </button>
+                <button onclick="toggleDemoTour()" class="p-1 rounded-full hover:bg-slate-100 text-slate-500" title="Close Walkthrough">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Teleprompter Script Card for Recording -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-3">
+            <p class="text-[12.5px] font-medium text-slate-800 leading-snug" id="tourScript">
+                "Spatial transcriptomics deconvolution algorithms like Cell2location estimate immune infiltration across 55µm spots. But under atlas-to-query platform shift, Bayesian models become severely overconfident along invasive tumor margins, declaring artificial 100% certainty where errors are highest."
+            </p>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-600" id="dot-0"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-1"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-2"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-3"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="dot-4"></span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="prevTourStep()" id="tourPrevBtn" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[12px] border border-slate-300 disabled:opacity-40" disabled>
+                    ← Previous
+                </button>
+                <button onclick="nextTourStep()" id="tourNextBtn" class="px-4 py-1 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-[12px] shadow-sm">
+                    Next Step →
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-6 flex flex-col gap-5">
@@ -153,8 +212,8 @@
             </div>
         </section>
 
-        <!-- HIGH-IMPACT CONTROL & VIDEO-OPTIMIZED METRIC BAR -->
-        <section class="apple-card p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+        <!-- CONTROL & VIDEO-OPTIMIZED METRIC BAR -->
+        <section id="section-metrics" class="apple-card p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
             <!-- Left: Alpha Miscoverage Slider & Presets -->
             <div class="flex-1 flex flex-col gap-2 max-w-md">
                 <div class="flex items-center justify-between">
@@ -179,16 +238,16 @@
 
             <div class="h-px lg:h-16 w-full lg:w-px bg-slate-200"></div>
 
-            <!-- Right: 4 Punchy, High-Contrast Badge Pods -->
+            <!-- Right: 4 Punchy Metric Pods -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4 flex-1">
-                <!-- Pod 1: Conformal Coverage (Emerald Pop) -->
+                <!-- Pod 1: Conformal Coverage -->
                 <div class="p-3 rounded-xl bg-emerald-50 border-2 border-emerald-300 shadow-sm flex flex-col justify-between">
                     <div class="text-[11px] font-bold text-emerald-900 uppercase tracking-wide">Conformal Coverage</div>
                     <div class="text-2xl font-black text-emerald-700 mt-0.5 font-mono" id="statCov">89.8%</div>
                     <div class="text-[11px] text-emerald-800 font-mono font-bold">≥ 90.0% Exact Target</div>
                 </div>
 
-                <!-- Pod 2: Bayesian Joint CI (Red Alert Pop) -->
+                <!-- Pod 2: Bayesian Joint CI Collapse -->
                 <div class="p-3 rounded-xl bg-red-50 border-2 border-red-300 shadow-sm flex flex-col justify-between">
                     <div class="text-[11px] font-bold text-red-900 uppercase tracking-wide">Bayesian Joint CI</div>
                     <div class="text-2xl font-black text-red-600 mt-0.5 font-mono">1.4%</div>
@@ -204,7 +263,7 @@
                     <div class="text-[11px] text-amber-800 font-mono font-bold" id="statGatedPct">8.9% Margin Mask</div>
                 </div>
 
-                <!-- Pod 4: Simplex Volume (V) -->
+                <!-- Pod 4: Simplex Volume -->
                 <div class="p-3 rounded-xl bg-slate-100 border-2 border-slate-300 shadow-sm flex flex-col justify-between">
                     <div class="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Simplex Vol (V)</div>
                     <div class="text-2xl font-black text-slate-900 mt-0.5 font-mono" id="statVol">0.058</div>
@@ -217,7 +276,7 @@
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             
             <!-- Column 1: Panel A - Uncalibrated Standard Deconvolution -->
-            <div class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
+            <div id="panel-a" class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-200">
                     <div class="flex items-center gap-2">
                         <span class="font-extrabold text-base text-slate-900 font-sans">a</span>
@@ -272,8 +331,8 @@
                 </div>
             </div>
 
-            <!-- Column 2: Panel B - SpotGuard Conformal Shield (FIXED: SOLID FLAT GREY MASKED SPOTS) -->
-            <div class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
+            <!-- Column 2: Panel B - SpotGuard Conformal Shield -->
+            <div id="panel-b" class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-200">
                     <div class="flex items-center gap-2">
                         <span class="font-extrabold text-base text-slate-900 font-sans">b</span>
@@ -304,7 +363,7 @@
                     </div>
                 </div>
 
-                <!-- Legend: High-Contrast Solid Grey vs Active Retained -->
+                <!-- Legend -->
                 <div class="flex items-center justify-between text-[11.5px] font-mono text-slate-700 font-semibold pt-1">
                     <div class="flex items-center gap-3">
                         <span class="flex items-center gap-1.5">
@@ -321,7 +380,7 @@
             </div>
 
             <!-- Column 3: Panels C, D, E - Simplex, Bounds, & High-Contrast Verdict -->
-            <div class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
+            <div id="panel-c" class="lg:col-span-4 apple-card p-5 flex flex-col justify-between">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-200">
                     <div class="flex items-center gap-2">
                         <span class="font-extrabold text-base text-slate-900 font-sans">c–e</span>
@@ -335,7 +394,7 @@
                     </span>
                 </div>
 
-                <!-- Panel C: Thicker, High-Contrast Barycentric Simplex Δ² Triangle -->
+                <!-- Panel C: Barycentric Simplex Δ² Triangle -->
                 <div class="bg-slate-50 rounded-xl p-3 my-2 border border-slate-200 flex flex-col items-center">
                     <div class="w-full flex justify-between text-[11px] font-mono text-slate-700 font-bold mb-1">
                         <span>Panel c | Simplex Space $\Delta^2$</span>
@@ -343,10 +402,8 @@
                     </div>
 
                     <svg class="w-full h-[150px] overflow-visible" viewbox="0 0 320 210">
-                        <!-- Thick Simplex Equilateral Triangle -->
                         <polygon fill="#FFFFFF" points="160,20 35,190 285,190" stroke="#475569" stroke-width="2.5"></polygon>
                         
-                        <!-- Internal Gridlines -->
                         <g stroke="#CBD5E1" stroke-dasharray="3,3" stroke-width="1.2">
                             <line x1="60" x2="172.5" y1="190" y2="38"></line>
                             <line x1="110" x2="197.5" y1="190" y2="74"></line>
@@ -356,22 +413,18 @@
                             <line x1="110" x2="210" y1="88" y2="88"></line>
                         </g>
 
-                        <!-- Thick Clinical Decision Boundary: CD8+ T = 5% Line -->
                         <line stroke="#DC2626" stroke-dasharray="5,4" stroke-width="2.5" x1="147.5" x2="47.5" y1="38" y2="174"></line>
                         <text fill="#DC2626" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" transform="rotate(-55 75 102)" x="75" y="102">
                             Cutoff: CD8+ = 5%
                         </text>
 
-                        <!-- Thick Conformal Region Polygon -->
                         <polygon fill="#F59E0B" fill-opacity="0.35" id="simplexPoly" points="106,110 134,94 148,118 126,136 98,128" stroke="#D97706" stroke-linejoin="round" stroke-width="2.5"></polygon>
                         
-                        <!-- Large Enforced Point Estimate Dot -->
                         <circle cx="122" cy="112" fill="#0284C7" id="simplexDot" r="5.5" stroke="#FFFFFF" stroke-width="2"></circle>
                         <text fill="#0F172A" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" id="simplexDotText" x="132" y="112">
                             μ = 0.08
                         </text>
 
-                        <!-- High-Contrast Vertex Labels -->
                         <text fill="#0F172A" font-family="'Inter', sans-serif" font-size="10.5" font-weight="800" text-anchor="middle" x="160" y="12">Tumor (1.0)</text>
                         <text fill="#0F172A" font-family="'Inter', sans-serif" font-size="10.5" font-weight="800" text-anchor="middle" x="22" y="204">Stroma</text>
                         <text fill="#D97706" font-family="'Inter', sans-serif" font-size="10.5" font-weight="800" text-anchor="middle" x="295" y="204">CD8+ T (1.0)</text>
@@ -390,7 +443,6 @@
                         <span class="text-slate-600">Point &amp; [90% CI]</span>
                     </div>
 
-                    <!-- Tumor -->
                     <div class="flex flex-col gap-0.5">
                         <div class="flex justify-between text-[11.5px] font-mono font-semibold">
                             <span class="text-slate-900">Tumor</span>
@@ -401,7 +453,6 @@
                         </div>
                     </div>
 
-                    <!-- Stroma -->
                     <div class="flex flex-col gap-0.5">
                         <div class="flex justify-between text-[11.5px] font-mono font-semibold">
                             <span class="text-slate-900">Stroma</span>
@@ -412,7 +463,6 @@
                         </div>
                     </div>
 
-                    <!-- CD8+ T -->
                     <div class="flex flex-col gap-0.5">
                         <div class="flex justify-between text-[11.5px] font-mono font-bold">
                             <span class="text-amber-800">CD8+ T (Cutoff 0.05)</span>
@@ -425,28 +475,28 @@
                     </div>
                 </div>
 
-                <!-- Panel E: HIGH-CONTRAST PUNCHY VERDICT BOX -->
-                <div class="mt-2.5 p-3 rounded-xl border-2 transition-all shadow-sm" id="verdictBox">
+                <!-- Panel E: Verdict Box -->
+                <div class="mt-2.5 p-3.5 rounded-xl border-2 transition-all shadow-sm bg-red-50 border-red-300 text-red-950" id="verdictBox">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[19px]" id="verdictIcon">verified</span>
-                            <span class="text-[12.5px] font-black uppercase tracking-wide" id="verdictTitle">
-                                Panel e | Verdict: Gated
+                            <span class="material-symbols-outlined text-[19px] text-red-600" id="verdictIcon">verified</span>
+                            <span class="text-[12.5px] font-black uppercase tracking-wide text-red-950" id="verdictTitle">
+                                Panel e | Verdict: Gated (Unreliable)
                             </span>
                         </div>
-                        <span class="px-2 py-0.5 text-[10px] font-mono font-black rounded uppercase text-white shadow-sm" id="verdictBadge">
+                        <span class="px-2 py-0.5 text-[10px] font-mono font-black rounded uppercase bg-red-600 text-white shadow-sm" id="verdictBadge">
                             NON-DECISIVE
                         </span>
                     </div>
-                    <p class="text-[11.5px] font-medium leading-snug mt-1.5" id="verdictDesc">
-                        Standard point deconvolution assigns spot #842 as TIL-positive (μ = 0.08 &gt; 0.05). However, the 90% conformal region [0.02–0.17] spans the 5% diagnostic threshold. The SpotGuard gatekeeper disqualifies this spot from automated qualification.
+                    <p class="text-[11.5px] font-semibold text-red-900 leading-snug mt-1.5" id="verdictDesc">
+                        Standard deconvolution predicts CD8+ fraction <strong>μ = 0.08</strong>. However, the 90% conformal set <strong>[0.02 – 0.17]</strong> straddles the 5% cutoff. SpotGuard disqualifies this spot to prevent false-positive immunotherapy qualification.
                     </p>
                 </div>
             </div>
         </section>
 
         <!-- Benchmark Summary Table -->
-        <section class="apple-card p-5">
+        <section id="section-table" class="apple-card p-5">
             <div class="flex items-center justify-between pb-3 border-b border-slate-200">
                 <div>
                     <h3 class="text-[15px] font-bold text-slate-900">Shift Benchmark Performance Evaluations</h3>
@@ -480,23 +530,23 @@
                         <tr class="text-slate-800 font-medium">
                             <td class="py-2 px-3">Bayesian Marginal CI</td>
                             <td class="py-2 px-3 text-slate-600">85.4% ± 3.2%</td>
-                            <td class="py-2 px-3 text-slate-600">0.041</td>
-                            <td class="py-2 px-3 text-slate-600">14.6%</td>
-                            <td class="py-2 px-3 text-slate-500">Unadjusted Marginals</td>
+                            <td class="py-2.5 px-3 text-slate-600">0.041</td>
+                            <td class="py-2.5 px-3 text-slate-600">14.6%</td>
+                            <td class="py-2.5 px-3 text-slate-500">Unadjusted Marginals</td>
                         </tr>
                         <tr class="text-slate-800 font-medium">
                             <td class="py-2 px-3">Bayesian Joint CI (Product Box)</td>
                             <td class="py-2 px-3 text-red-600 font-bold">1.4% ± 1.1% (Collapse)</td>
-                            <td class="py-2 px-3 text-slate-600">0.018</td>
-                            <td class="py-2 px-3 text-red-600 font-bold">42.8%</td>
-                            <td class="py-2 px-3 text-red-600 font-bold">Degenerate Collapse</td>
+                            <td class="py-2.5 px-3 text-slate-600">0.018</td>
+                            <td class="py-2.5 px-3 text-red-600 font-bold">42.8%</td>
+                            <td class="py-2.5 px-3 text-red-600 font-bold">Degenerate Collapse</td>
                         </tr>
                         <tr class="text-slate-800 font-medium">
                             <td class="py-2 px-3">Unweighted Conformal</td>
                             <td class="py-2 px-3 text-red-600 font-bold">84.6% ± 3.2%</td>
-                            <td class="py-2 px-3 text-slate-600">0.062</td>
-                            <td class="py-2 px-3 text-red-600">14.2%</td>
-                            <td class="py-2 px-3 text-slate-600">Broken Exchangeability</td>
+                            <td class="py-2.5 px-3 text-slate-600">0.062</td>
+                            <td class="py-2.5 px-3 text-red-600">14.2%</td>
+                            <td class="py-2.5 px-3 text-slate-600">Broken Exchangeability</td>
                         </tr>
                     </tbody>
                 </table>
@@ -519,7 +569,7 @@
         </div>
     </footer>
 
-    <!-- Interactive Engine Script -->
+    <!-- Interactive Engine & 2-Minute Guided Tour Engine -->
     <script>
         (function() {
             const COLS = 46;
@@ -602,7 +652,6 @@
 
                             const color = getMagma(data.cd8);
 
-                            // Canvas 1: Raw Uncalibrated
                             const spotA = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                             spotA.setAttribute('cx', cx.toFixed(1));
                             spotA.setAttribute('cy', cy.toFixed(1));
@@ -612,7 +661,6 @@
                             spotA.onclick = () => selectSpot(c, r, spotId, data);
                             uncalGroup.appendChild(spotA);
 
-                            // Canvas 2: SpotGuard Masked (SOLID FLAT GREY FOR GATED SPOTS)
                             const spotB = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                             spotB.setAttribute('cx', cx.toFixed(1));
                             spotB.setAttribute('cy', cy.toFixed(1));
@@ -621,7 +669,6 @@
                             spotB.onclick = () => selectSpot(c, r, spotId, data);
 
                             if (data.isGated) {
-                                // Solid muted grey #94A3B8 with clean dark border #64748B
                                 spotB.setAttribute('fill', '#94A3B8');
                                 spotB.setAttribute('stroke', '#64748B');
                                 spotB.setAttribute('stroke-width', '0.6');
@@ -633,7 +680,6 @@
                     }
                 }
 
-                // Update Stats
                 const retained = total - gated;
                 const gatedPct = ((gated / total) * 100).toFixed(1);
                 const retainedPct = ((retained / total) * 100).toFixed(1);
@@ -698,7 +744,6 @@
                 const verdictIcon = document.getElementById('verdictIcon');
                 const simplexRegionStatus = document.getElementById('simplexRegionStatus');
 
-                // High-Contrast Punchy Verdict Styling
                 if (isAmbiguous || data.isGated) {
                     verdictBox.className = "mt-2.5 p-3.5 rounded-xl bg-red-50 border-2 border-red-300 text-red-950 transition-all shadow-sm";
                     verdictTitle.innerText = "Panel e | Verdict: Gated (Unreliable)";
@@ -734,6 +779,164 @@
                 currentAlpha = parseFloat(e.target.value);
                 renderSpots();
             });
+
+            // ==================== 2-MINUTE GUIDED TOUR ENGINE ====================
+            const tourSteps = [
+                {
+                    title: "The Clinical Problem (0:00 – 0:30)",
+                    script: "Spatial transcriptomics deconvolution algorithms like Cell2location estimate immune infiltration across 55µm spots. But under atlas-to-query platform shift, Bayesian models become severely overconfident along invasive tumor margins, declaring artificial 100% certainty where errors are highest.",
+                    highlight: "panel-a",
+                    action: () => {
+                        selectSpot(25, 15, 842, getTissueData(25, 15));
+                        document.getElementById('panel-a').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                },
+                {
+                    title: "Bayesian Collapse vs. Conformal Guarantee (0:30 – 0:55)",
+                    script: "When we evaluate unadjusted Bayesian Joint Credible Regions on the probability simplex, they suffer catastrophic geometric collapse, yielding only 1.4% empirical coverage—a 45-fold miscoverage deficit. SpotGuard formulates nonconformity via Total Variation geometry to guarantee exact 90% coverage.",
+                    highlight: "section-metrics",
+                    action: () => {
+                        document.getElementById('section-metrics').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                },
+                {
+                    title: "Real-Time Conformal Gatekeeping (0:55 – 1:25)",
+                    script: "In Panel B, SpotGuard applies weighted conformal prediction. Notice the greyed-out spots along the invasive boundary: rather than outputting misleading point calls, SpotGuard deactivates spots where covariate shift undermines exchangeability, dynamically adapting as we sweep α.",
+                    highlight: "panel-b",
+                    action: () => {
+                        setAlpha(0.05);
+                        setTimeout(() => setAlpha(0.10), 1200);
+                        document.getElementById('panel-b').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                },
+                {
+                    title: "Barycentric Simplex & Clinical Triage (1:25 – 1:50)",
+                    script: "In Panels C–E, we inspect Spot #842. While standard models call it TIL-positive at 8%, the 90% conformal region [2%–17%] straddles the 5% decision threshold. SpotGuard triggers a red NON-DECISIVE gate. But when we select a core spot, it immediately clears as CERTIFIED SAFE.",
+                    highlight: "panel-c",
+                    action: () => {
+                        selectSpot(25, 15, 842, getTissueData(25, 15));
+                        setTimeout(() => {
+                            selectSpot(23, 21, 989, getTissueData(23, 21));
+                        }, 2500);
+                        document.getElementById('panel-c').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                },
+                {
+                    title: "Benchmark Validation & Deployment (1:50 – 2:00)",
+                    script: "Across synthetic, cross-donor, and cross-platform Visium benchmarks, SpotGuard slashes triage error from 42.8% to 3.8%. The full Python engine and interactive interface are open-source and linked in our 2-page ML4H 2026 Spec Sheet.",
+                    highlight: "section-table",
+                    action: () => {
+                        document.getElementById('section-table').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            ];
+
+            let currentStep = 0;
+            let tourTimerInterval = null;
+            let tourSeconds = 0;
+            let isAutoPlaying = true;
+            let isTourActive = false;
+
+            window.toggleDemoTour = function() {
+                isTourActive = !isTourActive;
+                const dock = document.getElementById('tourDock');
+                const btn = document.getElementById('tourTriggerBtn');
+                
+                if (isTourActive) {
+                    dock.classList.remove('hidden');
+                    btn.classList.add('bg-sky-600', 'text-white');
+                    currentStep = 0;
+                    tourSeconds = 0;
+                    isAutoPlaying = true;
+                    startTourTimer();
+                    goToTourStep(0);
+                } else {
+                    dock.classList.add('hidden');
+                    btn.classList.remove('bg-sky-600');
+                    clearHighlights();
+                    stopTourTimer();
+                }
+            };
+
+            function clearHighlights() {
+                document.querySelectorAll('.apple-card').forEach(el => el.classList.remove('tour-highlight'));
+            }
+
+            function goToTourStep(idx) {
+                clearHighlights();
+                currentStep = idx;
+                const step = tourSteps[idx];
+
+                document.getElementById('tourStepBadge').innerText = `STEP ${idx + 1} OF 5`;
+                document.getElementById('tourTitle').innerText = step.title;
+                document.getElementById('tourScript').innerText = `"${step.script}"`;
+                
+                document.getElementById('tourPrevBtn').disabled = (idx === 0);
+                document.getElementById('tourNextBtn').innerText = (idx === tourSteps.length - 1) ? "Finish Walkthrough ✓" : "Next Step →";
+
+                for (let i = 0; i < 5; i++) {
+                    const dot = document.getElementById(`dot-${i}`);
+                    if (dot) dot.className = (i === idx) ? "w-3 h-3 rounded-full bg-sky-600 shadow-sm" : "w-2.5 h-2.5 rounded-full bg-slate-300";
+                }
+
+                if (step.highlight) {
+                    const target = document.getElementById(step.highlight);
+                    if (target) target.classList.add('tour-highlight');
+                }
+
+                if (step.action) step.action();
+            }
+
+            window.nextTourStep = function() {
+                if (currentStep < tourSteps.length - 1) {
+                    goToTourStep(currentStep + 1);
+                } else {
+                    toggleDemoTour();
+                }
+            };
+
+            window.prevTourStep = function() {
+                if (currentStep > 0) {
+                    goToTourStep(currentStep - 1);
+                }
+            };
+
+            window.toggleAutoPlay = function() {
+                isAutoPlaying = !isAutoPlaying;
+                const btn = document.getElementById('tourPlayPauseBtn');
+                if (isAutoPlaying) {
+                    btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">pause</span>';
+                } else {
+                    btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">play_arrow</span>';
+                }
+            };
+
+            function startTourTimer() {
+                stopTourTimer();
+                tourTimerInterval = setInterval(() => {
+                    tourSeconds++;
+                    const mins = Math.floor(tourSeconds / 60);
+                    const secs = tourSeconds % 60;
+                    document.getElementById('tourTimer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs} / 2:00`;
+
+                    if (isAutoPlaying) {
+                        if (tourSeconds === 30) goToTourStep(1);
+                        else if (tourSeconds === 55) goToTourStep(2);
+                        else if (tourSeconds === 85) goToTourStep(3);
+                        else if (tourSeconds === 110) goToTourStep(4);
+                        else if (tourSeconds >= 125) {
+                            toggleDemoTour();
+                        }
+                    }
+                }, 1000);
+            }
+
+            function stopTourTimer() {
+                if (tourTimerInterval) {
+                    clearInterval(tourTimerInterval);
+                    tourTimerInterval = null;
+                }
+            }
 
             renderSpots();
             selectSpot(25, 15, 842, getTissueData(25, 15));
