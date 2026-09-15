@@ -100,7 +100,7 @@ The Bayesian Joint CI (1.0%–2.0%) fails because taking an unadjusted Cartesian
 Clinical Utility & Access.
 Scalar TV radius q_hat_alpha provides actionable gatekeeping for pathologists over intractable high-dimensional posterior tensors.
 - Web App: https://the-mathking.github.io/ML4HDemo/
-- Demo Video: https://youtu.be/yQW2Yw_8V1M
+- Demo Video: https://youtu.be/u3NUaWljdgo
 - Source Code: https://github.com/The-MathKing/ML4HDemo
 
 Limitations & Scope.
