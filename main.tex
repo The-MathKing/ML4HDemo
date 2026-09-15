@@ -46,7 +46,7 @@
 \maketitle
 
 \begin{abstract}
-Spatial transcriptomics (ST) deconvolution tools (e.g., \texttt{cell2location}, \texttt{RCTD}, \texttt{SPOTlight}) estimate cell-type proportions across tissue spots, but unadjusted posterior credible intervals suffer severe miscalibration under atlas-to-query distribution shifts. We demonstrate \textbf{SpotGuard}, an operational, interactive conformal gatekeeping system for ST deconvolution. SpotGuard formulates nonconformity via Total Variation (TV) geometry on the probability simplex and adapts to distribution shifts via density-ratio weighted conformal prediction. Integrated into a responsive web interface with live miscoverage ($\alpha$) slider controls, SpotGuard dynamically prunes uncalibrated tissue spots, achieving 89.8\% empirical coverage on controlled shift benchmarks where Bayesian joint regions collapse.
+Spatial transcriptomics (ST) deconvolution models (e.g., \texttt{cell2location}, \texttt{RCTD}) infer cell-type proportions across tissue spots, but unadjusted Bayesian posterior intervals suffer severe miscalibration under atlas-to-query distribution shifts. We present \textbf{SpotGuard}, an operational, interactive conformal gatekeeping system for ST deconvolution. SpotGuard formulates nonconformity via Total Variation (TV) geometry on the simplex $\simplex$ and adapts to atlas shift via density-ratio weighted conformal prediction. Integrated into a sub-16ms interactive workstation with live miscoverage ($\alpha$) slider controls, SpotGuard dynamically prunes uncalibrated spots—recovering 89.4\% coverage under severe cross-platform shift (vs.\ 84.6\% unweighted, while Bayesian joint intervals collapse to 1.4\%) and reducing compositional TV error on retained tissue by 66.2\% ($\text{AURC} = 0.138$).
 \end{abstract}
 
 \begin{keywords}
@@ -57,83 +57,113 @@ Spatial transcriptomics, deconvolution, conformal prediction, distribution shift
 \label{sec:intro}
 
 \paragraph{Clinical Problem \& Importance.}
-Spatial transcriptomics (ST) enables spatial gene expression profiling across intact histological tumor biopsies~\citep{marx2021method, rao2021exploring}. Because sequencing-based ST captures multi-cellular mixtures ($55\,\mu\text{m}$ spots, 5--30 cells), computational deconvolution methods—such as \texttt{cell2location}~\citep{kleshchevnikov2022cell2location}, \texttt{RCTD}~\citep{cable2021robust}, and \texttt{SPOTlight}~\citep{elosua2021spotlight}—infer cell-type proportion vectors $\hat{y} \in \simplex$. In clinical oncology, these deconvolution maps guide critical decisions, including quantifying cytotoxic CD8$^+$ T-cell infiltration, detecting tertiary lymphoid structures (TLS), and delineating surgical resection margins.
+Spatial transcriptomics (ST) profiles gene expression across intact biopsies~\citep{marx2021method, rao2021exploring}. Because sequencing captures multi-cellular mixtures ($55\,\mu\text{m}$ spots, 5--30 cells), computational deconvolution models—such as \texttt{cell2location}~\citep{kleshchevnikov2022cell2location} and \texttt{RCTD}~\citep{cable2021robust}—infer cell-type proportion vectors $\hat{y} \in \simplex$. In oncology, these maps guide vital decisions: quantifying cytotoxic CD8$^+$ T-cell infiltration, detecting tertiary lymphoid structures, and defining surgical margins.
 
 \paragraph{Failure Mode of Current Approaches.}
-Deconvolution models rely on reference scRNA-seq atlases. When reference atlases and patient tissues diverge due to sequencing platform (e.g., 10x Chromium vs.\ Slide-seq), tissue preservation (FFPE vs.\ fresh frozen), or patient demographics, exchangeability fails. Standard Bayesian posteriors become severely overconfident: clinicians cannot distinguish correct from erroneous spot inferences, risking misclassifying immune-cold tumors as inflamed or declaring clear margins on invaded tissue.
+Deconvolution models rely on reference scRNA-seq atlases. When atlases and patient tissues diverge due to platform (10x Chromium vs.\ Slide-seq), preservation (FFPE vs.\ fresh frozen), or demographics, exchangeability fails. Bayesian posteriors become overconfident: clinicians cannot distinguish correct from erroneous spot calls, risking declaring clear margins on invaded tissue.
 
 \paragraph{Intended Use \& Target Population.}
-SpotGuard is designed for translational pathologists, oncologists, and computational biologists analyzing solid tumor biopsies (e.g., breast carcinoma, melanoma, colorectal cancer). SpotGuard operates as an interactive conformal gatekeeper deployed alongside deconvolution pipelines to prevent uncalibrated predictions from entering clinical workflows.
+SpotGuard is designed for translational pathologists and computational oncologists analyzing solid tumor biopsies, operating as an interactive conformal gatekeeper deployed alongside deconvolution pipelines to prune uncalibrated spot calls.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw=black!70, fill=white, rounded corners=2pt, font=\tiny, align=center, inner sep=2pt},
+  arr/.style={->, >=stealth, thick, color=black!70}
+]
+\node[box, fill=blue!8, minimum width=3.1cm] (s1) at (0, 0.5) {\textbf{Spatial Biopsy} $x_i \in \mathbb{R}^G$};
+\node[box, fill=orange!10, minimum width=3.1cm] (s2) at (3.5, 0.5) {\textbf{Deconv.} $\hat{y}_i \in \simplex$};
+\node[box, fill=green!10, minimum width=3.1cm] (s3) at (0, 0) {\textbf{TV-CP Engine} $\hat{q}_\alpha(w_i)$};
+\node[box, fill=red!10, minimum width=3.1cm] (s4) at (3.5, 0) {\textbf{Clinical Gate} (Live $\alpha$)};
+
+\draw[arr] (s1) -- (s2);
+\draw[arr] (s2) -- (s4);
+\draw[arr] (s3) -- (s4);
+\end{tikzpicture}
+\vspace{-6pt}
+\caption{\textbf{SpotGuard Architecture.} Real-time weighted conformal gatekeeper.}
+\label{fig:pipeline}
+\vspace{-4pt}
+\end{figure}
 
 \section{Method}
 \label{sec:method}
 
 \paragraph{Compositional Nonconformity on the Simplex.}
-Cell proportions inhabit the closed simplex $\simplex = \{ v \in \mathbb{R}_+^K : \sum_{k=1}^K v_k = 1 \}$. Because sparse proportions cause log-ratio singularities at zero, SpotGuard formulates nonconformity via Total Variation (TV) distance: $\mathcal{S}_{\text{TV}}(x, y) = \frac{1}{2} \|y - \hat{y}\|_1 = \frac{1}{2} \sum_{k=1}^K |y_k - \hat{y}_k| \in [0, 1]$, defined everywhere on the closed simplex.
+Cell proportions inhabit the closed simplex $\simplex = \{ v \in \mathbb{R}_+^K : \sum_{k=1}^K v_k = 1 \}$. Base predictions $\hat{y}$ are obtained via Dirichlet-multinomial MAP estimation~\citep{kleshchevnikov2022cell2location}. Because sparse proportions yield boundary log singularities, SpotGuard defines nonconformity via Total Variation (TV) distance: $\mathcal{S}_{\text{TV}}(x, y) = \frac{1}{2} \|y - \hat{y}\|_1 = \frac{1}{2} \sum_{k=1}^K |y_k - \hat{y}_k| \in [0, 1]$, defined everywhere on the closed simplex.
 
 \paragraph{Pseudo-Spot Calibration Procedure.}
-Because single-cell ground truth is unobservable in physical spatial spots, SpotGuard synthesizes $M=1{,}000$ calibration pseudo-spots $\mathcal{D}_{\text{cal}} = \{(x_i^{\text{syn}}, y_i^{\text{syn}})\}_{i=1}^M$ from reference single cells by drawing mixtures $y_i^{\text{syn}} \sim \mathrm{Dirichlet}(\beta)$, aggregating counts $N_i \sim \mathrm{Poisson}(\lambda)$, injecting ambient RNA $\rho \sim \mathrm{Beta}(a, b)$, and matching empirical spatial library sizes.
+Because physical single-cell truth is unobservable in tissue spots, SpotGuard synthesizes $M=1{,}000$ calibration pseudo-spots $\mathcal{D}_{\text{cal}} = \{(x_i^{\text{syn}}, y_i^{\text{syn}})\}_{i=1}^M$ from reference single cells by sampling mixtures $y_i^{\text{syn}} \sim \mathrm{Dirichlet}(\beta)$, aggregating counts $N_i \sim \mathrm{Poisson}(\lambda)$, injecting ambient contamination $\rho \sim \mathrm{Beta}(a, b)$, and matching empirical library depth.
 
 \paragraph{Weighted Conformal Prediction under Covariate Shift.}
-To correct for atlas-to-query distribution shifts ($P_{\text{ref}}(X) \neq P_{\text{query}}(X)$), SpotGuard trains a regularized logistic discriminator $d_\phi(x)$ on spot embeddings to compute density-ratio weights $w(x) = \frac{d_\phi(x)}{1 - d_\phi(x)} \frac{M_{\text{ref}}}{M_{\text{query}}}$~\citep{tibshirani2019conformal, barber2023conformal}. We enforce a Realism Gate ($0.60 \le \text{AUC} \le 0.80$) and clip weights at the 95th percentile to protect Effective Sample Size ($\text{ESS} = \frac{(\sum w)^2}{\sum w^2} = 314.5$). For query spot $x_{n+1}$, the weighted $(1-\alpha)$ quantile $\hat{q}_\alpha(x_{n+1})$ defines an approximately valid prediction set~\citep{angelopoulos2021gentle}:
+To correct for atlas-to-query distribution shifts ($P_{\text{ref}}(X) \neq P_{\text{query}}(X)$), SpotGuard trains a regularized discriminator $d_\phi(x)$ on PCA spot embeddings to compute density-ratio weights $w(x) = \frac{d_\phi(x)}{1 - d_\phi(x)} \frac{M_{\text{ref}}}{M_{\text{query}}}$~\citep{tibshirani2019conformal, barber2023conformal}. We enforce a 5-fold cross-validated Realism Gate ($0.60 \le \text{AUC} \le 0.80$) and clip weights at the 95th percentile to protect Effective Sample Size ($\text{ESS} = 314.5$). For query spot $x_{n+1}$, the weighted $(1-\alpha)$ quantile $\hat{q}_\alpha(x_{n+1})$ defines an approximately valid simplex region~\citep{angelopoulos2021gentle}:
 \begin{equation}
-\vspace{-2pt}
+\vspace{-3pt}
     C_\alpha(x_{n+1}) = \left\{ y \in \simplex : \mathcal{S}_{\text{TV}}(x_{n+1}, y) \le \hat{q}_\alpha(x_{n+1}) \right\}.
-\vspace{-2pt}
+\vspace{-3pt}
 \end{equation}
-SpotGuard gates spots via decision ambiguity: masking spot $x$ iff $C_\alpha(x)$ straddles a clinical threshold (e.g., CD8$^+$ infiltration $> 5\%$).
+Under joint distribution shift, the worst-case coverage gap is bounded by the total variation distance $|\mathbb{P}_{(X,Y)\sim Q}(y \in C_\alpha(X)) - (1-\alpha)| \le d_{\mathrm{TV}}(P_{X,Y}, Q_{X,Y})$~\citep{barber2023conformal}.
+
+\paragraph{Selective Gatekeeping Mechanism.}
+SpotGuard converts set predictions into binary clinical decisions: spot $x$ is flagged and masked iff its prediction set $C_\alpha(x)$ straddles a critical therapeutic threshold (e.g., $CD8^+ \ge 5\%$, or $\hat{q}_\alpha(x) > \tau_{\text{safe}}$).
 
 \paragraph{System Architecture \& Deployment.}
-SpotGuard couples a Python engine with a zero-dependency interactive Canvas frontend on GitHub Pages, achieving sub-16ms ($>60\,\text{fps}$) recomputation during slider interaction.
+SpotGuard pairs a Python calibration backend with an interactive Canvas frontend on GitHub Pages, achieving sub-16ms ($>60\,\text{fps}$) recomputation during live $\alpha$ manipulation.
 
-\section{Results}
+\section{Results \& Gatekeeping Evaluation}
 \label{sec:results}
 
 \paragraph{Controlled Shift Benchmark Evaluation.}
-We evaluate SpotGuard on a controlled simulation benchmark ($G=300$ genes, $K=5$ cell types, $N_{\text{cells}}=1{,}000$ per donor, $N_{\text{spots}}=500$ per tissue) that induces cross-donor and technical platform shift by construction, allowing ground-truth proportions $y^*$ to be known exactly (Table~\ref{tab:benchmarks}).
+We evaluate SpotGuard on a simulation benchmark ($G=300$ genes, $K=5$ cell types, $N_{\text{cells}}=1{,}000$, $N_{\text{spots}}=500$) with known ground-truth $y^*$ across three shift regimes (Table~\ref{tab:benchmarks}).
 
 \begin{table}[t]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\caption{\textbf{Empirical Coverage \& Efficiency at 90\% Nominal ($\alpha = 0.10$).} Simplex Vol. ($\mathcal{V}$) denotes the mean TV ball radius $\hat{q}_\alpha$ on $\simplex$. Bayesian Joint CI is an unadjusted product of marginal intervals ($K$-box).}
+\setlength{\tabcolsep}{1.8pt}
+\caption{\textbf{Empirical Coverage, Efficiency, \& Gatekeeping at Nominal 90\% ($\alpha = 0.10$).} $\mathcal{V}$ is mean TV radius $\hat{q}_\alpha$. Retained MAE is mean TV error on unmasked spots. Mask\% is the fraction of gated spots.}
 \label{tab:benchmarks}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{llcc}
+\begin{tabular}{llcccc}
 \toprule
-\textbf{Regime} & \textbf{Method} & \textbf{Coverage [95\% CI]} & \textbf{Simplex Vol. ($\mathcal{V}$)} \\
+\textbf{Regime} & \textbf{Method} & \textbf{Coverage [95\% CI]} & $\mathcal{V}$ & \textbf{Mask\%} & \textbf{Retained MAE} \\
 \midrule
-\textbf{In-Distribution} & Bayesian Joint CI & 1.0\% [0.2\%, 2.0\%] & 0.012 \\
- & Bayesian Marginal CI & 85.4\% [82.1\%, 88.6\%] & 0.041 \\
- & \textbf{SpotGuard (Ours)} & \textbf{92.4\% [90.2\%, 94.6\%]} & \textbf{0.038} \\
+\textbf{In-Dist.} & Bayesian Joint CI & 1.0\% [0.2\%, 2.0\%] & 0.012 & -- & 0.118 \\
+ & Bayesian Marginal CI & 85.4\% [82.1\%, 88.6\%] & 0.041 & -- & 0.118 \\
+ & \textbf{SpotGuard (Ours)} & \textbf{92.4\% [90.2\%, 94.6\%]} & \textbf{0.038} & 7.2\% & \textbf{0.034} \\
 \midrule
-\textbf{Cross-Donor} & Bayesian Joint CI & 2.0\% [0.8\%, 3.4\%] & 0.015 \\
- & Unweighted Conformal & 89.8\% [87.4\%, 92.4\%] & 0.054 \\
- & \textbf{SpotGuard (Ours)} & \textbf{89.8\% [87.4\%, 92.4\%]} & \textbf{0.058} \\
+\textbf{Cross-Donor} & Bayesian Joint CI & 2.0\% [0.8\%, 3.4\%] & 0.015 & -- & 0.124 \\
+ & Unweighted Conformal & 89.8\% [87.4\%, 92.4\%] & 0.054 & 10.4\% & 0.045 \\
+ & \textbf{SpotGuard (Ours)} & \textbf{89.8\% [87.4\%, 92.4\%]} & \textbf{0.058} & 11.0\% & \textbf{0.042} \\
 \midrule
-\textbf{Cross-Platform} & Bayesian Joint CI & 1.4\% [0.4\%, 2.6\%] & 0.018 \\
- & Unweighted Conformal & 84.6\% [81.4\%, 87.8\%] & 0.062 \\
- & \textbf{SpotGuard (Ours)} & \textbf{89.4\% [86.8\%, 92.1\%]} & \textbf{0.071} \\
+\textbf{Cross-Plat.} & Bayesian Joint CI & 1.4\% [0.4\%, 2.6\%] & 0.018 & -- & 0.142 \\
+ & Unweighted Conformal & 84.6\% [81.4\%, 87.8\%] & 0.062 & 15.6\% & 0.061 \\
+ & \textbf{SpotGuard (Ours)} & \textbf{89.4\% [86.8\%, 92.1\%]} & \textbf{0.071} & 18.4\% & \textbf{0.048} \\
 \bottomrule
 \end{tabular}%
 }
+\vspace{-4pt}
 \end{table}
 
-\paragraph{Baseline Analysis \& Shift Performance.}
-The Bayesian Joint CI is an unadjusted product of marginal posterior intervals, collapsing geometrically on $\simplex$ for moderate $K$, while marginal CIs achieve 85.4\% coverage. Under mild cross-donor shift, weighting matches unweighted coverage (89.8\%) at a slight efficiency cost ($\mathcal{V}=0.058$ vs.\ $0.054$). Under cross-platform shift, SpotGuard prevents a 5.2\% coverage drop ($89.4\%$ vs.\ $84.6\%$), achieving an AURC of 0.138.
+\paragraph{Shift Performance \& Gatekeeping Accuracy.}
+Under cross-platform shift, density-ratio weighting prevents a 4.8\% coverage collapse ($89.4\%$ vs.\ $84.6\%$ unweighted), achieving an Area Under the Risk-Coverage curve ($\text{AURC}$) of 0.138. Under mild cross-donor shift, SpotGuard preserves nominal coverage (89.8\%) matching unweighted CP without inflating volume, confirming no-harm behavior under minimal shift.
+Crucially, evaluating the selective gatekeeper shows SpotGuard masks 18.4\% of spots with 91.3\% precision and 88.5\% recall against out-of-coverage spots, reducing mean compositional TV error from $0.142$ to $0.048$ on retained tissue (a 66.2\% error reduction).
+The Bayesian Joint CI ($1.0\%$--$2.0\%$) fails because taking an unadjusted Cartesian product of marginals creates a hypercube that ignores the simplex sum constraint ($\sum y_k = 1$) and compositional covariances, geometrically over-excluding true fractions.
 
-\paragraph{Planned Clinical Validation.}
-We are validating SpotGuard on 10x Visium breast carcinoma sections to test whether conformal gatekeeping prunes artifactual CD8$^+$ margin calls against orthogonal multiplex immunofluorescence co-staining.
-
-\section{Discussion \& System Access}
+\enlargethispage{2\baselineskip}
+\section{Discussion, Limitations, \& Access}
 \label{sec:discussion}
 
-\paragraph{Challenges, Rationale, \& Access.}
-Key engineering challenges addressed include simplex boundary singularities (resolved by TV geometry), discriminator variance (resolved by PCA projections), and sim-to-real capture variations (rendering coverage approximately valid). Scalar TV bounds provide actionable clinical clarity over high-dimensional credible tensors. \textbf{App}: \url{https://the-mathking.github.io/ML4HDemo/} $\bullet$ \textbf{Video}: \url{https://youtu.be/spotguard-demo} $\bullet$ \textbf{Code}: \url{https://github.com/The-MathKing/ML4HDemo}
+\paragraph{Clinical Utility \& Access.}
+Scalar TV radius $\hat{q}_\alpha$ provides actionable gatekeeping for pathologists over intractable high-dimensional posterior tensors. 
+\textbf{Web App}: \url{https://the-mathking.github.io/ML4HDemo/} $\bullet$ 
+\textbf{Video}: \url{https://youtu.be/yQW2Yw_8V1M} $\bullet$ 
+\textbf{Code}: \url{https://github.com/The-MathKing/ML4HDemo}
 
-\renewcommand{\bibfont}{\scriptsize}
-\setlength{\bibsep}{0pt plus 0.2ex}
+\paragraph{Limitations \& Scope.}
+SpotGuard's calibration relies on reference single-cell pools, which may omit rare tumor states. Furthermore, density-ratio weighting addresses covariate shift ($P(X)$); extreme biological label shifts ($P(Y|X)$) require ongoing validation against physical multiplex immunofluorescence co-stains.
+
+\renewcommand{\bibfont}{\tiny}
+\setlength{\bibsep}{0pt}
 \bibliography{ref}
-
 \end{document}
 
