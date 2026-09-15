@@ -1,0 +1,120 @@
+SpotGuard: Conformal Gatekeeping for Spatial Transcriptomic Deconvolution under Atlas-to-Tissue Shift
+
+Authors:
+Aryan Padarthi (aryan.padarthi@student.allenisd.org)
+Johnathan Luu (johnathan.luu@student.allenisd.org)
+Adhvait Reddy Bireddy (adhvait.bireddy@student.allenisd.org)
+Ethan Mingyi Ye (ethan.ye@student.allenisd.org)
+Affiliation: Allen High School
+Email: {aryan.padarthi, johnathan.luu, adhvait.bireddy, ethan.ye}@student.allenisd.org
+
+Venue: Machine Learning for Health (ML4H) 2026 - Demo Track
+
+
+================================================================================
+ABSTRACT
+================================================================================
+Spatial transcriptomics (ST) deconvolution models (e.g., cell2location, RCTD) infer cell-type proportions across tissue spots, but unadjusted Bayesian posterior intervals suffer severe miscalibration under atlas-to-query distribution shifts. We present SpotGuard, an operational, interactive conformal gatekeeping system for ST deconvolution. SpotGuard formulates nonconformity via Total Variation (TV) geometry on the simplex Delta^{K-1} and adapts to atlas shift via density-ratio weighted conformal prediction. Integrated into a sub-16ms interactive workstation with live miscoverage (alpha) slider controls, SpotGuard dynamically prunes uncalibrated spots—recovering 89.4% coverage under severe cross-platform shift (vs. 84.6% unweighted, while Bayesian joint intervals collapse to 1.4%) and reducing compositional TV error on retained tissue by 66.2% (AURC = 0.138).
+
+Keywords: Spatial transcriptomics, deconvolution, conformal prediction, distribution shift, oncology.
+
+
+================================================================================
+1. INTRODUCTION
+================================================================================
+
+Clinical Problem & Importance.
+Spatial transcriptomics (ST) profiles gene expression across intact biopsies (Marx, 2021; Rao et al., 2021). Because sequencing captures multi-cellular mixtures (55 um spots, 5–30 cells), computational deconvolution models—such as cell2location (Kleshchevnikov et al., 2022) and RCTD (Cable et al., 2022)—infer cell-type proportion vectors y_hat in Delta^{K-1}. In oncology, these maps guide vital decisions: quantifying cytotoxic CD8+ T-cell infiltration, detecting tertiary lymphoid structures, and defining surgical margins.
+
+Failure Mode of Current Approaches.
+Deconvolution models rely on reference scRNA-seq atlases. When atlases and patient tissues diverge due to platform (10x Chromium vs. Slide-seq), preservation (FFPE vs. fresh frozen), or demographics, exchangeability fails. Bayesian posteriors become overconfident: clinicians cannot distinguish correct from erroneous spot calls, risking declaring clear margins on invaded tissue.
+
+Intended Use & Target Population.
+SpotGuard is designed for translational pathologists and computational oncologists analyzing solid tumor biopsies, operating as an interactive conformal gatekeeper deployed alongside deconvolution pipelines to prune uncalibrated spot calls.
+
+
+================================================================================
+2. METHOD
+================================================================================
+
+Compositional Nonconformity on the Simplex.
+Cell proportions inhabit the closed simplex Delta^{K-1} = { v in R_+^K : sum_{k=1}^K v_k = 1 }. Base predictions y_hat are obtained via Dirichlet-multinomial MAP estimation (Kleshchevnikov et al., 2022). Because sparse proportions yield boundary log singularities, SpotGuard defines nonconformity via Total Variation (TV) distance:
+S_TV(x, y) = 1/2 ||y - y_hat||_1 = 1/2 sum_{k=1}^K |y_k - y_hat_k| in [0, 1],
+defined everywhere on the closed simplex.
+
+Pseudo-Spot Calibration Procedure.
+Because physical single-cell truth is unobservable in tissue spots, SpotGuard synthesizes M = 1,000 calibration pseudo-spots D_cal = {(x_i^syn, y_i^syn)}_{i=1}^M from reference single cells by sampling mixtures y_i^syn ~ Dirichlet(beta), aggregating counts N_i ~ Poisson(lambda), injecting ambient contamination rho ~ Beta(a, b), and matching empirical library depth.
+
+Weighted Conformal Prediction under Covariate Shift.
+To correct for atlas-to-query distribution shifts (P_ref(X) != P_query(X)), SpotGuard trains a regularized discriminator d_phi(x) on PCA spot embeddings to compute density-ratio weights:
+w(x) = (d_phi(x) / (1 - d_phi(x))) * (M_ref / M_query)
+(Tibshirani et al., 2019; Barber et al., 2023). We enforce a 5-fold cross-validated Realism Gate (0.60 <= AUC <= 0.80) and clip weights at the 95th percentile to protect Effective Sample Size (ESS = 314.5). For query spot x_{n+1}, the weighted (1 - alpha) quantile q_hat_alpha(x_{n+1}) defines an approximately valid simplex region (Angelopoulos & Bates, 2021):
+C_alpha(x_{n+1}) = { y in Delta^{K-1} : S_TV(x_{n+1}, y) <= q_hat_alpha(x_{n+1}) }.
+Under joint distribution shift, the worst-case coverage gap is bounded by the total variation distance:
+|P_{(X,Y)~Q}(y in C_alpha(X)) - (1 - alpha)| <= d_TV(P_{X,Y}, Q_{X,Y})
+(Barber et al., 2023).
+
+Selective Gatekeeping Mechanism.
+SpotGuard converts set predictions into binary clinical decisions: spot x is flagged and masked iff its prediction set C_alpha(x) straddles a critical therapeutic threshold (e.g., CD8+ >= 5%, or q_hat_alpha(x) > tau_safe).
+
+System Architecture & Deployment.
+SpotGuard pairs a Python calibration backend with an interactive Canvas frontend on GitHub Pages, achieving sub-16ms (>60 fps) recomputation during live alpha manipulation.
+
+
+================================================================================
+3. RESULTS & GATEKEEPING EVALUATION
+================================================================================
+
+Controlled Shift Benchmark Evaluation.
+We evaluate SpotGuard on a simulation benchmark (G = 300 genes, K = 5 cell types, N_cells = 1,000, N_spots = 500) with known ground-truth y* across three shift regimes.
+
+Table 1: Empirical Coverage, Efficiency, & Gatekeeping at Nominal 90% (alpha = 0.10).
+V denotes mean TV ball radius q_hat_alpha. Retained MAE is mean TV error on unmasked spots. Mask% is the fraction of gated spots.
+
+------------------------------------------------------------------------------------------------------------------------------------
+Regime             Method                  Coverage [95% CI]        V        Mask%    Retained MAE   Safety Behavior
+------------------------------------------------------------------------------------------------------------------------------------
+In-Distribution    Bayesian Joint CI       1.0% [0.2%, 2.0%]        0.012    --       0.118          Geometric Hypercube Collapse
+                   Bayesian Marginal CI    85.4% [82.1%, 88.6%]     0.041    --       0.118          Unadjusted Marginals
+                   SpotGuard (Ours)        92.4% [90.2%, 94.6%]     0.038    7.2%     0.034          Valid Simplex Nonconformity
+
+Cross-Donor Shift  Bayesian Joint CI       2.0% [0.8%, 3.4%]        0.015    --       0.124          Geometric Hypercube Collapse
+                   Unweighted Conformal    89.8% [87.4%, 92.4%]     0.054    10.4%    0.045          Unweighted CP Baseline
+                   SpotGuard (Ours)        89.8% [87.4%, 92.4%]     0.058    11.0%    0.042          No-Harm under Mild Shift
+
+Cross-Platform     Bayesian Joint CI       1.4% [0.4%, 2.6%]        0.018    --       0.142          Severe Overconfidence Collapse
+(10x to Slide-seq) Unweighted Conformal    84.6% [81.4%, 87.8%]     0.062    15.6%    0.061          5.4% Coverage Deficit
+                   SpotGuard (Ours)        89.4% [86.8%, 92.1%]     0.071    18.4%    0.048          +4.8% Coverage Recovered (-66.2% Error)
+------------------------------------------------------------------------------------------------------------------------------------
+
+Shift Performance & Gatekeeping Accuracy.
+Under cross-platform shift, density-ratio weighting prevents a 4.8% coverage collapse (89.4% vs. 84.6% unweighted), achieving an Area Under the Risk-Coverage curve (AURC) of 0.138. Under mild cross-donor shift, SpotGuard preserves nominal coverage (89.8%) matching unweighted CP without inflating volume, confirming no-harm behavior under minimal shift.
+Crucially, evaluating the selective gatekeeper shows SpotGuard masks 18.4% of spots with 91.3% precision and 88.5% recall against out-of-coverage spots, reducing mean compositional TV error from 0.142 to 0.048 on retained tissue (a 66.2% error reduction).
+The Bayesian Joint CI (1.0%–2.0%) fails because taking an unadjusted Cartesian product of marginals creates a hypercube that ignores the simplex sum constraint (sum y_k = 1) and compositional covariances, geometrically over-excluding true fractions.
+
+
+================================================================================
+4. DISCUSSION, LIMITATIONS, & ACCESS
+================================================================================
+
+Clinical Utility & Access.
+Scalar TV radius q_hat_alpha provides actionable gatekeeping for pathologists over intractable high-dimensional posterior tensors.
+- Web App: https://the-mathking.github.io/ML4HDemo/
+- Demo Video: https://youtu.be/yQW2Yw_8V1M
+- Source Code: https://github.com/The-MathKing/ML4HDemo
+
+Limitations & Scope.
+SpotGuard's calibration relies on reference single-cell pools, which may omit rare tumor states. Furthermore, density-ratio weighting addresses covariate shift (P(X)); extreme biological label shifts (P(Y|X)) require ongoing validation against physical multiplex immunofluorescence co-stains.
+
+
+================================================================================
+REFERENCES
+================================================================================
+1. Anastasios N. Angelopoulos and Stephen Bates. A gentle introduction to conformal prediction and distribution-free uncertainty quantification. arXiv preprint arXiv:2107.07511, 2021.
+2. Rina Foygel Barber, Emmanuel J. Candes, Aaditya Ramdas, and Ryan J. Tibshirani. Conformal prediction beyond exchangeability. The Annals of Statistics, 51(2):816–845, 2023.
+3. Dylan M. Cable, Evan Murray, Luli S. Zou, Aleksandrina Goeva, Evan Z. Macosko, Fei Chen, and Rafael A. Irizarry. Robust decomposition of cell type mixtures in spatial transcriptomics. Nature Biotechnology, 40(4):517–526, 2022.
+4. Vitalii Kleshchevnikov, Artem Shmatko, Eerik Dann, Alexander Aivazidis, Hamish W. King, Tong Li, Rasa Elmentaite, Artem Lomakin, Veronika Kedlian, Adam Gayoso, et al. Cell2location maps fine-grained cell types in spatial transcriptomics. Nature Biotechnology, 40(5):661–671, 2022.
+5. Vivien Marx. Method of the year: spatially resolved transcriptomics. Nature Methods, 18(1):9–14, 2021.
+6. Anjali Rao, Dalia Barkley, Oscar Franzen, and Itai Yanai. Exploring tissue architecture using spatial transcriptomics. Nature, 596(7871):211–220, 2021.
+7. Ryan J. Tibshirani, Rina Foygel Barber, Emmanuel Candes, and Aaditya Ramdas. Conformal prediction under covariate shift. Advances in Neural Information Processing Systems, 32, 2019.
+8. Marc Elosua-Bayes, Paula Nieto, Elisabetta Mereu, Ivo Gut, and Holger Heyn. SPOTlight: seeded NMF regression to deconvolute spatial transcriptomics data with single-cell subtags. Nucleic Acids Research, 49(9):e52–e52, 2021.
