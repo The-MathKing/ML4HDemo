@@ -418,53 +418,106 @@
             <div class="flex items-center justify-between pb-2 border-b border-slate-200">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-sky-600 text-[18px]">science</span>
-                    <span class="font-bold text-slate-900 uppercase">Empirical Benchmark Regimes ($G=300, K=5, N=1,600$)</span>
+                    <span class="font-bold text-slate-900 uppercase">Empirical Benchmark Regimes ($G=300, K=5$, Controlled Shifts)</span>
                 </div>
-                <span class="text-sky-800 font-bold">NOMINAL COVERAGE: 90.0%</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">NOMINAL COVERAGE: 90.0% ($\alpha = 0.10$)</span>
+                </div>
             </div>
 
             <div class="overflow-x-auto mt-2">
                 <table class="w-full text-left">
                     <thead>
-                        <tr class="text-slate-600 uppercase text-[10.5px] bg-slate-50 border-b border-slate-200 font-bold">
+                        <tr class="text-slate-600 uppercase text-[10px] bg-slate-50 border-b border-slate-200 font-bold">
+                            <th class="py-2 px-3">Regime</th>
                             <th class="py-2 px-3">Method Engine</th>
-                            <th class="py-2 px-3">Empirical Coverage</th>
-                            <th class="py-2 px-3">Simplex Vol (V)</th>
-                            <th class="py-2 px-3">Triage Misclassification</th>
-                            <th class="py-2 px-3">Safety Guarantee</th>
+                            <th class="py-2 px-3">Coverage [95% CI]</th>
+                            <th class="py-2 px-3">Simplex Vol ($\mathcal{V}$)</th>
+                            <th class="py-2 px-3">Masking Rate</th>
+                            <th class="py-2 px-3">Retained TV MAE</th>
+                            <th class="py-2 px-3">Safety Behavior</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200">
-                        <tr class="bg-sky-50/70 text-sky-950 font-bold">
-                            <td class="py-2.5 px-3 flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-sky-600 shadow-sm"></span>
-                                <strong class="text-slate-900">SpotGuard (Ours)</strong>
-                            </td>
-                            <td class="py-2.5 px-3 text-emerald-700 font-black">89.8% ± 1.4%</td>
-                            <td class="py-2.5 px-3">0.058 (Tightest)</td>
-                            <td class="py-2.5 px-3 text-emerald-700 font-black">3.8% (Gated)</td>
-                            <td class="py-2.5 px-3 text-emerald-700 font-black">Exact Finite Guarantee</td>
+                    <tbody class="divide-y divide-slate-200 text-[11px]">
+                        <!-- In-Distribution -->
+                        <tr class="bg-slate-50/50">
+                            <td class="py-2 px-3 font-bold text-slate-700" rowspan="3">In-Distribution</td>
+                            <td class="py-2 px-3 text-slate-600">Bayesian Joint CI</td>
+                            <td class="py-2 px-3 text-red-600 font-bold">1.0% [0.2%, 2.0%]</td>
+                            <td class="py-2 px-3 text-slate-600">0.012</td>
+                            <td class="py-2 px-3 text-slate-400">--</td>
+                            <td class="py-2 px-3 text-slate-600">0.118</td>
+                            <td class="py-2 px-3 text-red-600 font-bold">Geometric Hypercube Collapse</td>
                         </tr>
-                        <tr class="text-slate-800 font-medium">
-                            <td class="py-2 px-3">Bayesian Marginal CI</td>
-                            <td class="py-2 px-3 text-slate-600">85.4% ± 3.2%</td>
-                            <td class="py-2.5 px-3 text-slate-600">0.041</td>
-                            <td class="py-2.5 px-3 text-slate-600">14.6%</td>
-                            <td class="py-2.5 px-3 text-slate-500">Unadjusted Marginals</td>
+                        <tr class="bg-slate-50/50">
+                            <td class="py-2 px-3 text-slate-600">Bayesian Marginal CI</td>
+                            <td class="py-2 px-3 text-slate-600">85.4% [82.1%, 88.6%]</td>
+                            <td class="py-2 px-3 text-slate-600">0.041</td>
+                            <td class="py-2 px-3 text-slate-400">--</td>
+                            <td class="py-2 px-3 text-slate-600">0.118</td>
+                            <td class="py-2 px-3 text-slate-500">Unadjusted Marginals</td>
                         </tr>
-                        <tr class="text-slate-800 font-medium">
-                            <td class="py-2 px-3">Bayesian Joint CI (Product Box)</td>
-                            <td class="py-2 px-3 text-red-600 font-bold">1.4% ± 1.1% (Collapse)</td>
-                            <td class="py-2.5 px-3 text-slate-600">0.018</td>
-                            <td class="py-2.5 px-3 text-red-600 font-bold">42.8%</td>
-                            <td class="py-2.5 px-3 text-red-600 font-bold">Degenerate Collapse</td>
+                        <tr class="bg-sky-50/60 font-bold text-sky-950">
+                            <td class="py-2 px-3 text-slate-900 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-600"></span>SpotGuard (Ours)</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">92.4% [90.2%, 94.6%]</td>
+                            <td class="py-2 px-3">0.038 (Tightest)</td>
+                            <td class="py-2 px-3 text-slate-700">7.2%</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">0.034</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">Valid Simplex Nonconformity</td>
                         </tr>
-                        <tr class="text-slate-800 font-medium">
-                            <td class="py-2 px-3">Unweighted Conformal</td>
-                            <td class="py-2 px-3 text-red-600 font-bold">84.6% ± 3.2%</td>
-                            <td class="py-2.5 px-3 text-slate-600">0.062</td>
-                            <td class="py-2.5 px-3 text-red-600">14.2%</td>
-                            <td class="py-2.5 px-3 text-slate-500">Broken Exchangeability</td>
+
+                        <!-- Cross-Donor -->
+                        <tr class="bg-white">
+                            <td class="py-2 px-3 font-bold text-slate-700" rowspan="3">Cross-Donor Shift</td>
+                            <td class="py-2 px-3 text-slate-600">Bayesian Joint CI</td>
+                            <td class="py-2 px-3 text-red-600 font-bold">2.0% [0.8%, 3.4%]</td>
+                            <td class="py-2 px-3 text-slate-600">0.015</td>
+                            <td class="py-2 px-3 text-slate-400">--</td>
+                            <td class="py-2 px-3 text-slate-600">0.124</td>
+                            <td class="py-2 px-3 text-red-600 font-bold">Geometric Hypercube Collapse</td>
+                        </tr>
+                        <tr class="bg-white">
+                            <td class="py-2 px-3 text-slate-600">Unweighted Conformal</td>
+                            <td class="py-2 px-3 text-slate-700">89.8% [87.4%, 92.4%]</td>
+                            <td class="py-2 px-3 text-slate-600">0.054</td>
+                            <td class="py-2 px-3 text-slate-700">10.4%</td>
+                            <td class="py-2 px-3 text-slate-600">0.045</td>
+                            <td class="py-2 px-3 text-slate-500">Unweighted CP Baseline</td>
+                        </tr>
+                        <tr class="bg-sky-50/60 font-bold text-sky-950">
+                            <td class="py-2 px-3 text-slate-900 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-600"></span>SpotGuard (Ours)</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">89.8% [87.4%, 92.4%]</td>
+                            <td class="py-2 px-3">0.058</td>
+                            <td class="py-2 px-3 text-slate-700">11.0%</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">0.042</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">No-Harm under Mild Shift</td>
+                        </tr>
+
+                        <!-- Cross-Platform -->
+                        <tr class="bg-slate-50/50">
+                            <td class="py-2 px-3 font-bold text-slate-700" rowspan="3">Cross-Platform Shift<br><span class="text-[9px] text-slate-400 font-normal">(10x to Slide-seq)</span></td>
+                            <td class="py-2 px-3 text-slate-600">Bayesian Joint CI</td>
+                            <td class="py-2 px-3 text-red-600 font-bold">1.4% [0.4%, 2.6%]</td>
+                            <td class="py-2 px-3 text-slate-600">0.018</td>
+                            <td class="py-2 px-3 text-slate-400">--</td>
+                            <td class="py-2 px-3 text-slate-600">0.142</td>
+                            <td class="py-2 px-3 text-red-600 font-bold">Severe Overconfidence Collapse</td>
+                        </tr>
+                        <tr class="bg-slate-50/50">
+                            <td class="py-2 px-3 text-slate-600">Unweighted Conformal</td>
+                            <td class="py-2 px-3 text-red-600 font-bold">84.6% [81.4%, 87.8%]</td>
+                            <td class="py-2 px-3 text-slate-600">0.062</td>
+                            <td class="py-2 px-3 text-slate-700">15.6%</td>
+                            <td class="py-2 px-3 text-slate-600">0.061</td>
+                            <td class="py-2 px-3 text-red-600">5.4% Coverage Deficit</td>
+                        </tr>
+                        <tr class="bg-emerald-50 font-bold text-emerald-950 border-2 border-emerald-300">
+                            <td class="py-2 px-3 text-emerald-900 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>SpotGuard (Ours)</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">89.4% [86.8%, 92.1%]</td>
+                            <td class="py-2 px-3">0.071</td>
+                            <td class="py-2 px-3 text-slate-800">18.4% (Gated)</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">0.048 (-66.2% Error)</td>
+                            <td class="py-2 px-3 text-emerald-700 font-black">+4.8% Coverage Recovered</td>
                         </tr>
                     </tbody>
                 </table>
